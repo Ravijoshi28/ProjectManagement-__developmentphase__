@@ -196,8 +196,6 @@ Built by Ravi Joshi using Next.js, MongoDB, Socket.IO, React Query, TypeScript, 
 ## Changes that I will do in future versions 
 ```bash
  * OoAuth logins
-```bash
-    |
     |-----google
     |-----facebook
     |-----github
