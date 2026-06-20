@@ -194,8 +194,13 @@ Built by Ravi Joshi using Next.js, MongoDB, Socket.IO, React Query, TypeScript, 
 
 
 ## Changes that I will do in future versions 
-
- * OoAuth logins ---google,facebook,github
+```bash
+ * OoAuth logins
+```bash
+    |
+    |-----google
+    |-----facebook
+    |-----github
  * Integrate ai that will analyze your work or images to give suggestions
  * feature for adding files (s3 bucket)
  * many more (as i remember new things)
