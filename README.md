@@ -127,9 +127,9 @@ app/
 ```text
 Action Performed
         ↓
-Notification Created
-        ↓
 Stored in MongoDB
+        ↓
+Notification Created
         ↓
 Check Online Status
         ↓
