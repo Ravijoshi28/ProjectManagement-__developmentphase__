@@ -97,7 +97,7 @@ export function AddTask({
 };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger >
         {trigger}
       </DialogTrigger>
 

@@ -18,8 +18,12 @@ const MessageSchema=new mongoose.Schema({
     },
     type:{
         type:String,
-        enum:["text","image","file","system"]
+        enum:["text","file","system"]
     },
+    file: {
+  url: String,
+  mimeType: String,
+},
     replyTo:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Message"

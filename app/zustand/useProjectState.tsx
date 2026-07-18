@@ -1,27 +1,25 @@
-import { create } from "zustand"
+import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+interface UseProject {
+  projectId: string | null;
+  projectMember: string | null; // or whatever type you need
 
-
-
-
-
-
-interface useProject{
-    projectId:string |null,
-    setProjectId:(projectId:string)=>Promise<void>
+  setProjectId: (projectId: string) => void;
 }
 
+export const useProjectState = create<UseProject>()(
+  persist(
+    (set) => ({
+      projectId: null,
+      projectMember: null,
 
-
-export const useProjectState=create<useProject>()(persist((set,get)=>({
-   projectId:null,
-   projectMember:null,
-
-   setProjectId:(projectId)=>{
-    set({projectId:projectId})
-    
-   }
-       
-})))
-
+      setProjectId: (projectId) => {
+        set({ projectId });
+      },
+    }),
+    {
+      name: "project-storage",
+    }
+  )
+);

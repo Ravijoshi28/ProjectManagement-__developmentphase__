@@ -53,7 +53,7 @@ export const AddMembers=async ({
 
 export const AssignTask=async(formdata:{
   taskId:string,
-  member:string
+  member:string | null
 })=>{
  await axiosInstance.patch("/project/assign",formdata);
 } 

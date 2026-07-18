@@ -25,7 +25,7 @@ export default function Dashboard() {
   }, []);
 
   // Isolate name resolution safely or fallback to elegant guest context
-  const displayName = user?.name || "Back";
+  const displayName = user?.username || "Back";
 
   return (
     <div className="flex min-h-screen w-full flex-col p-4 sm:p-6 md:p-8 gap-6 bg-slate-50/40 font-sans">

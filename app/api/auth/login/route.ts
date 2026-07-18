@@ -40,7 +40,8 @@ export async function POST(req:Request){
         user: {
           id:Users._id,
           username:Users.username,
-          email:Users.email
+          email:Users.email,
+          image:Users.image
         },
         
       },

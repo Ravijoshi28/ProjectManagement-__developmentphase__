@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 
-export async function POST(req:NextRequest,{params}:{params:{projectId:string}}) {
+export async function POST(req:NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
     await ConnectDb();
     const cookiesgen=await cookies();
     
@@ -23,14 +23,20 @@ export async function POST(req:NextRequest,{params}:{params:{projectId:string}})
         const body=await req.json();
         const {projectId}= await params;
 
-        if(!projectId || !body.message || body.message.trim() === ""){
+        if(!projectId || (!body.message ||( body.message.content.trim() && body.message.file.trim())) === ""){
          return Response.json({message:"no project selected or message empty"},{status:400});
         }
+      
         
         const newMessage=new Message({
-            content:body.message,
+            content:body.content,
             senderId:user.id,
-            projectId:projectId
+            projectId:projectId,
+            type:body.type,
+            file:{
+                url:body.file.url,
+                mimetype:body.file.mimetype
+            }
         })
         
         await newMessage.save();
@@ -39,7 +45,7 @@ export async function POST(req:NextRequest,{params}:{params:{projectId:string}})
         return Response.json({message:"Message sended"},{status:200})
 
     } catch (error) {
-        
+        console.log(error)
         return Response.json({message:"something went wrong...cannot send message"},{status:500})
     }
 }

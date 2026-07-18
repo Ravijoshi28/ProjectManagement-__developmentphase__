@@ -56,10 +56,10 @@ export default function ProjectId() {
   const currentProject = projects.find((p) => p._id === projectId);
 
   const assignTaskMutation = useMutation({
-    mutationFn: ({ taskId, userId }: { taskId: string; userId: string }) =>
+    mutationFn: ({ taskId, userId }: { taskId: string; userId: string |null }) =>
       AssignTask({
         taskId,
-        user: userId,
+        member: userId??null,
       }),
     onMutate: async ({ taskId, userId }) => {
       await queryClient.cancelQueries({ queryKey: ["tasks", projectId] });
@@ -68,7 +68,7 @@ export default function ProjectId() {
 
       queryClient.setQueryData<Task[]>(["tasks", projectId], (old = []) =>
         old.map((task) =>
-          task._id === taskId ? { ...task, assignedTo: userId } : task
+          task._id === taskId ? { ...task, assignedTo: userId ?? undefined } : task
         )
       );
       socket.emit("notification",{addedEmail:userId})
@@ -224,7 +224,7 @@ export default function ProjectId() {
                           onValueChange={(userId) => {
                             assignTaskMutation.mutate({
                               taskId: task._id,
-                              userId: userId === "unassigned" ? "" : userId,
+                              userId: userId === "unassigned" ? " " : userId,
                             });
                           }}
                         >

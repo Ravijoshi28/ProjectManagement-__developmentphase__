@@ -44,7 +44,9 @@ socket.on("task-created",({projectId,formData})=>{
     })
 
     socket.on("notification",({addedEmail})=>{
+        console.log(addedEmail)
         console.log("notification received");
+        console.log(addedEmail)
        addedEmail.forEach((user:any) => {
         io.to(user.id).emit("notification")
         console.log(user.id);

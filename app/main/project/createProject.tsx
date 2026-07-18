@@ -45,7 +45,7 @@ const mutation=useMutation({
       {/* 1. Correctly using 'asChild' on DialogTrigger.
         2. No native <Button> wrapping the Card anymore, keeping HTML clean!
       */}
-      <DialogTrigger aschild>
+      <DialogTrigger >
         <Card className="flex flex-col items-center justify-center border-dashed border-2 border-muted hover:border-primary/40 hover:bg-primary/5 cursor-pointer transition-all duration-400 h-full min-h-[220px] rounded-xl p-6 text-center group">
           <div className="p-3 rounded-full bg-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors mb-3">
             <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />

@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest) {
     const task = await Tasks.findByIdAndUpdate(
       body.taskId,
       {
-        assignedTo: body.user, // frontend sends "user"
+        assignedTo: body.member, // frontend sends "user"
       },
       {
          returnDocument: "after"
@@ -65,7 +65,7 @@ export async function PATCH(req: NextRequest) {
       senderId: user.id,
     sender: username.username,
 
-    userId: body.user,
+    userId: body.member,
 
     title: "Assign Task",
     message: `${username.username} assigned you the task "${task.title}"`,

@@ -1,26 +1,38 @@
 import { axiosInstance } from "@/app/lib/axios";
 
-
+interface File{
+  url:string,
+  mimeType:string
+}
 
 interface SendMessageArgs {
   projectId: string
-  formData: {
-    message: string;
+  message: {
+    content:string,
+    file:File,
+    type:string
   };
 }
 
 export const sendMessage = async ({
   projectId,
-  formData,
+  message,
 }: SendMessageArgs) => {
   
-
+console.log(message)
+try{
   const res = await axiosInstance.post(
     `/messages/${projectId}/sendMessage`,
-    formData
+    message
   );
+   return res.data.messages;  
+}catch(error){
+console.log(error)
+}
 
-  return res.data.messages;
+
+
+ 
 };
 
 export const getMessages=async(projectId:string)=>{

@@ -109,7 +109,7 @@ export default function Projects() {
                 <CardTitle className="text-base font-semibold tracking-tight text-slate-900">
                   <Link 
                     href={`/main/project/${project._id}`}
-                    onClick={() => setProjectId(project._id,project.members)}
+                    onClick={() => setProjectId(project._id)}
                     className="hover:text-blue-600 transition-colors block"
                   >
                     {project.name}
@@ -152,7 +152,7 @@ export default function Projects() {
                   )}
 
                   {/* Quick Action Add Button Trigger Node */}
-                  {user === project.ownerId && (
+                  {user?.id === project.ownerId && (
                     <AddMember
                       projectId={project._id}
                       trigger={

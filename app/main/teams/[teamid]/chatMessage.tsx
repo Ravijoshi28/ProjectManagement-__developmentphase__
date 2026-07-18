@@ -14,6 +14,12 @@ interface Message {
     image?: string;
   };
   content: string;
+  type: "text" | "file" | "system";
+  file?: {
+    url: string;
+    mimeType: string;
+    name?: string;
+  };
   createdAt: string;
 }
 
@@ -35,6 +41,7 @@ export default function ChatMessages({
     staleTime: 5 * 60 * 1000,
   });
 
+  console.table(messages)
 
 
 useEffect(() => {
@@ -76,7 +83,7 @@ useEffect(() => {
       )}
 
       {messages.map((msg) => {
-  const isMe = msg.senderId?._id === user;
+ const isMe = msg.senderId?._id === user?.id;
 
   return (
     <div
@@ -107,17 +114,51 @@ useEffect(() => {
 
       {/* Message Bubble */}
       <div
-        className={`
-          px-4 py-2 text-sm shadow-sm break-words max-w-[350px]
-          ${
-            isMe
-              ? "bg-blue-600 text-white rounded-2xl rounded-br-md"
-              : "bg-slate-100 text-slate-900 rounded-2xl rounded-bl-md"
-          }
-        `}
-      >
-        {msg.content}
-      </div>
+  className={`
+    px-4 py-2 text-sm shadow-sm break-words max-w-[350px]
+    ${
+      isMe
+        ? "bg-blue-600 text-white rounded-2xl rounded-br-md"
+        : "bg-slate-100 text-slate-900 rounded-2xl rounded-bl-md"
+    }
+  `}
+>
+ 
+    <p>{msg.content}</p>
+  
+
+  {msg.type === "file" && msg.file && (
+    <div className="space-y-2">
+      {msg.file.mimeType?.startsWith("image/") ? (
+        <img
+          src={msg.file.url}
+          alt="attachment"
+          className="max-w-64 rounded-lg object-cover"
+        />
+      ) : msg.file.mimeType === "application/pdf" ? (
+        <a
+          href={msg.file.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-lg border p-3 hover:bg-black/5"
+        >
+          📄 Open PDF
+        </a>
+      ) : (
+        <a
+          href={msg.file.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-lg border p-3 hover:bg-black/5"
+        >
+          📎 Download File
+        </a>
+      )}
+
+ 
+    </div>
+  )}
+</div>
     </div>
   );
 })}

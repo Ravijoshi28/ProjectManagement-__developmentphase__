@@ -52,9 +52,9 @@ export default function BoardPage() {
 
   const { data: tasks = [], isLoading, error } = useQuery<Tasks[]>({
     queryKey: ["UserTask"],
-    queryFn: () => UserTasks(user),
+    queryFn: () => UserTasks(user?.id ?? null),
     staleTime: 5 * 60 * 1000,
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
   useEffect(() => {

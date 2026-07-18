@@ -1,15 +1,20 @@
 "use client";
-
+import { supabase } from "@/app/lib/supabase";
 import React, { useState } from "react";
 import { useUserState } from "@/app/zustand/userState";
 import { User, Mail, Shield, Building, LayoutGrid, BellRing, Check, Save, LogOutIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { changeProfile } from "@/app/frontendLib/profile/profile";
 
 export default function ProfilePage() {
-  const { user } = useUserState();
-  console.log(user.id)
+  const { user ,setData,logout} = useUserState();
+  console.log(user)
+  const queryMutation=useMutation({
+    mutationFn:changeProfile
+  })
 
-   const { logout } = useUserState()
+   
     const router = useRouter()
   
     const handleLogout = async () => {
@@ -25,21 +30,36 @@ export default function ProfilePage() {
     role: "Project Manager",
     emailNotifications: true,
     realtimeUpdates: true,
+    image:user?.image ??null,
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleSaveChanges = (e: React.FormEvent) => {
+  const handleSaveChanges = async(e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
-    
-    // Simulate API update routine
-    setTimeout(() => {
+      setIsSaving(true);
+      
+    try{
+         
+       setData({
+         username: formData.name,
+         image: formData.image,
+         email: formData.email
+       })
+       await  queryMutation.mutateAsync({
+       name: formData.name,
+        image:formData.image ??null,
+       })
+    }catch(error){
+      console.log("error is ",error)
+    }finally{
       setIsSaving(false);
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
-    }, 1200);
+    }
+  
+    
+    // api call to save changes in server...
+
   };
 
   const userInitials = formData.name
@@ -47,6 +67,36 @@ export default function ProfilePage() {
     .map((n) => n[0])
     .join("")
     .toUpperCase();
+
+
+
+ const handleFileChange = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  console.log(file.type)
+  const filename = `avatar/${crypto.randomUUID()}-${file.name}`;
+
+  const { error } = await supabase.storage
+    .from("avatar")
+    .upload(filename, file);
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("avatar")
+    .getPublicUrl(filename);
+    setFormData((prev) => ({
+  ...prev,
+  image: data.publicUrl,
+}));
+  console.log("image",data.publicUrl);
+};
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 md:p-8 font-sans">
@@ -63,7 +113,24 @@ export default function ProfilePage() {
         {/* Profile Card Hero Block */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center gap-5">
           <div className="h-16 w-16 shrink-0 rounded-full bg-slate-900 flex items-center justify-center text-white text-xl font-bold ring-4 ring-slate-100 shadow-inner">
-            {userInitials || "U"}
+            <input
+  id="profile-image"
+  type="file"
+  accept="image/*"
+  className="hidden"
+  onChange={handleFileChange}
+/>
+
+<label
+  htmlFor="profile-image"
+  className="cursor-pointer px-4 py-2 bg-transparent text-white rounded"
+>
+  {formData.image?(<img
+  src={formData.image}
+  alt="Profile"
+  className="w-full h-full rounded-full object-cover"
+/>):(userInitials)}
+</label>
           </div>
           <div className="text-center sm:text-left space-y-1 flex-1 min-w-0">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">{formData.name}</h2>
@@ -113,7 +180,7 @@ export default function ProfilePage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full pl-9 pr-4 py-2 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-colors"
-                      required
+                      disabled
                     />
                   </div>
                 </div>
@@ -151,7 +218,7 @@ export default function ProfilePage() {
           {/* Column 3: Communication & Push Preferences Panel */}
 
           <div className="space-y-6">
-            <h2 className="text-shadow-blue-300 font-bold">This section is currently under development so not working</h2>
+            <h2 className="text-shadow-blue-300 font-bold ">This section is currently under development so not working</h2>
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <BellRing size={16} className="text-slate-400" />
@@ -214,7 +281,7 @@ export default function ProfilePage() {
   {/* Full-Width Destructive System Session Escape Hatch */}
   <button
     type="button"
-    onClick={() => handleLogout}
+    onClick={() => handleLogout()}
     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 border border-red-200 hover:bg-red-100/70 active:bg-red-100 text-red-600 rounded-xl text-xs font-bold tracking-wide uppercase transition-all duration-150 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10"
   >
     <LogOutIcon size={14} className="shrink-0" />
