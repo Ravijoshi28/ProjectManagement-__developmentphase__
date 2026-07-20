@@ -6,7 +6,8 @@ export const UserTasks=async(userId:string | null)=>{
    
     console.log("working")
 const res=await axiosInstance.get(`/user/usertask?user=${userId}`);
-      return res.data.data;
+    console.log(res);
+      return res.data.message;
 } 
 
 export const updateTaskStatus=async(taskId:string,status:string)=>{

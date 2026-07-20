@@ -1,12 +1,9 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import PMember from "@/app/Models/PMember";
-import Tasks from "@/app/Models/Tasks";
+import { tasks } from "@/app/Models/Tasks";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req:NextRequest){
-    await ConnectDb();
     const cookieExt=await cookies();
     const token=cookieExt.get("token")?.value;
     if(!token){
@@ -16,20 +13,30 @@ export async function GET(req:NextRequest){
      if(!user.id){
        return Response.json({message:"user not authorised"},{status:201})
     }
+    const id=user.id
 
     const now = new Date();
 
 const nextWeek = new Date();
 nextWeek.setDate(now.getDate() + 7);
     try {
-      const tasks = await Tasks.find({
-  assignedTo: user.id,
+      const taskList = await tasks.find({
+  assignedTo:id,
   dueDate: {
     $gte: now,
     $lte: nextWeek,
   },
-}).sort({ dueDate: 1 }).limit(5);
- return Response.json({message:tasks},{status:200})
+},{sort:{ dueDate: 1 },limit:5
+}).toArray();
+
+    if(taskList.length===0){
+        console.log("no task")
+         return Response.json({message:[]},{status:200})
+
+    }
+
+   
+ return Response.json({message:taskList},{status:200})
         
     } catch (error) {
         console.log(error);

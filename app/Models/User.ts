@@ -1,53 +1,60 @@
-import mongoose from "mongoose";
+import { db } from "../lib/astradb";
 
-const UserSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
+import type { User } from "./typeValidator";
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password:{
-        type:String,
-    },
+export const users=db.collection<User>("users")
 
-    image: {
-      type: String,
-    },
 
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+// import mongoose from "mongoose";
 
-    bio: {
-      type: String,
-    },
+// const UserSchema = new mongoose.Schema(
+//   {
+//     name: {
+//       type: String,
+//       required: true,
+//     },
 
-    provider: {
-      type: String,
-      enum: ["google", "github"],
-    },
+//     email: {
+//       type: String,
+//       required: true,
+//       unique: true,
+//     },
+//     password:{
+//         type:String,
+//     },
 
-    isOnline: {
-      type: Boolean,
-      default: false,
-    },
+//     image: {
+//       type: String,
+//     },
 
-    lastSeenAt: {
-      type: Date,
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+//     username: {
+//       type: String,
+//       required: true,
+//       unique: true,
+//     },
 
-export default mongoose.models.User ||
-  mongoose.model("User", UserSchema);
+//     bio: {
+//       type: String,
+//     },
+
+//     provider: {
+//       type: String,
+//       enum: ["google", "github"],
+//     },
+
+//     isOnline: {
+//       type: Boolean,
+//       default: false,
+//     },
+
+//     lastSeenAt: {
+//       type: Date,
+//     },
+//   },
+//   {
+//     timestamps: true,
+//   }
+// );
+
+// export default mongoose.models.User ||
+//   mongoose.model("User", UserSchema);

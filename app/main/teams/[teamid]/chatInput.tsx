@@ -65,6 +65,8 @@ export default function ChatInput( {projectId
       return;
     }
     const type = message.file.url ? "file" : "text";
+    
+    
     await queryMutation.mutateAsync({
       projectId,
       message: {

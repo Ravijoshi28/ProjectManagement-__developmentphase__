@@ -1,47 +1,55 @@
-import User from "@/app/Models/User";
+// import User from "@/app/Models/User";
 import { cookies } from "next/headers";
-import ConnectDb from "@/app/lib/mongodb";
+// import ConnectDb from "@/app/lib/mongodb";
 import { Generate } from "@/app/lib/tokenGenerate";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { users } from "@/app/Models/User";
+import { LoginSchema } from "@/app/schema/zod";
 const PEPPER=process.env.PASSWORD_PEPPER
 
 export async function POST(req:Request){
 
-     await ConnectDb();
+    //  await ConnectDb();
 
-        const body=await req.json();
+        const body=LoginSchema.parse(await req.json());
       
 
     try{
-        const Users=await User.findOne({email:body.email})
+        const user=await users.findOne({email:body.email})
         
-        if(!Users) return Response.json({message:"User does not exist"},{status:401});
+        if(!user) return Response.json({message:"user does not exist"},{status:401});
          
+        if(!user.password){
+           return Response.json(
+    { message: "Invalid account" },
+    { status: 401 }
+  );
+        }
         const newpass=body.password+PEPPER;
        
-        const pass=await bcrypt.compare(newpass,Users.password)
+        const pass=await bcrypt.compare(newpass,user.password)
          
         if(!pass) {
-            return Response.json({message:"User or password does not match"},{status:401});
+            return Response.json({message:"user or password does not match"},{status:401});
         }
 
          
-      const token= await Generate(Users._id);
+      const token= await Generate(user._id);
      
 
       if (!token) {
       return NextResponse.json({ success: false, error: "Token generation failed" }, { status: 500 });
     }
-
+      console.log("loggedin")
        const response = NextResponse.json(
       {
         success: true,
         user: {
-          id:Users._id,
-          username:Users.username,
-          email:Users.email,
-          image:Users.image
+          id:user._id,
+          username:user.username,
+          email:user.email,
+          image:user.image
         },
         
       },

@@ -1,12 +1,10 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import PMember from "@/app/Models/PMember";
-import Tasks from "@/app/Models/Tasks";
+import { pMembers } from "@/app/Models/PMember";
+import { tasks } from "@/app/Models/Tasks";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req:NextRequest){
-    await ConnectDb();
     const cookieExt=await cookies();
     const token=cookieExt.get("token")?.value;
     if(!token){
@@ -18,18 +16,25 @@ export async function GET(req:NextRequest){
     }
 
     try {
-        const projects = await PMember.find({ userId: user.id }).select("projectId -_id");
+        const projects = await pMembers.find({ userId: user.id },{projection:{
+                projectId:1,_id:1
+        }}).toArray();
 
 const projectIds = projects.map((p) => p.projectId);
-const tasks = await Tasks.find({
-  projectId: { $in: projectIds },
-})
-  .sort({ createdAt: -1 }) // newest first
-  .limit(5);
+const taskList = await tasks.find(
+  {
+    projectId: { $in: projectIds },
+  },
+  {
+    sort: { createdAt: -1 },
+    limit: 5,
+  }
+).toArray();
+  
 
 
 
- return Response.json({message:tasks},{status:200})
+ return Response.json({message:taskList},{status:200})
         
     } catch (error) {
         console.log(error);

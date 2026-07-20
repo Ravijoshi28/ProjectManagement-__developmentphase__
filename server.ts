@@ -1,65 +1,55 @@
 import { createServer } from "http";
-import next from "next";
 import { Server } from "socket.io";
 
-const dev=process.env.NODE_ENV!=="production";
-const app=next({dev});
-const handle=app.getRequestHandler();
+const httpServer = createServer();
 
-app.prepare().then(()=>{
-    const httpServer=createServer((req,res)=>{
-        handle(req,res);
-    });
+const io = new Server(httpServer, {
+  cors: {
+    origin: [
+      "http://localhost:3000",
+      "https://project-management-developmentphase.vercel.app",
+    ],
+    credentials: true,
+  },
+});
 
-    const io=new Server(httpServer,{
-        cors:{
-            origin:"*",
-        },
-    });
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
 
-    io.on("connection",(socket)=>{
-        console.log("user connected:",socket.id);
-
-          socket.onAny((event, ...args) => {
+  socket.onAny((event, ...args) => {
     console.log("SERVER EVENT:", event, args);
   });
 
-        socket.on("join-project", (projectId) => {
-  socket.join(projectId);
-  
-});
-socket.on("task-created",({projectId,formData})=>{
-    io.to(projectId).emit("receive-task",formData);
-})
+  socket.on("join-project", (projectId) => {
+    socket.join(projectId);
+  });
 
-        socket.on("send-message", ({ projectId, message}) => {
-            
-  io.to(projectId).emit("receive-message", message);
- 
-});
+  socket.on("task-created", ({ projectId, formData }) => {
+    io.to(projectId).emit("receive-task", formData);
+  });
 
-    socket.on("register-user",(user)=>{
-        console.log(`user registered ${user}`)
-        socket.join(user);
-    })
+  socket.on("send-message", ({ projectId, message }) => {
+    io.to(projectId).emit("receive-message", message);
+  });
 
-    socket.on("notification",({addedEmail})=>{
-        console.log(addedEmail)
-        console.log("notification received");
-        console.log(addedEmail)
-       addedEmail.forEach((user:any) => {
-        io.to(user.id).emit("notification")
-        console.log(user.id);
-        console.log("message sended")
-       });
-    })
+  socket.on("register-user", (userId) => {
+    console.log(`User registered ${userId}`);
+    socket.join(userId);
+  });
 
-        socket.on("disconnect",()=>{
-            console.log("user disconnected");
-        })
+  socket.on("notification", ({ addedEmail }) => {
+    addedEmail.forEach((user: any) => {
+      io.to(user.id).emit("notification");
     });
+  });
 
-    httpServer.listen(3000,()=>{
-        console.log("running on server 3000");
-    })
-})
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
+const PORT = Number(process.env.PORT) || 3000;
+
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`Socket server running on ${PORT}`);
+});

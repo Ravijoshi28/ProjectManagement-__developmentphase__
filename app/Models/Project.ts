@@ -1,28 +1,33 @@
+import { db } from "../lib/astradb"
+import type { Projects } from "./typeValidator"
 
-import mongoose from "mongoose";
+export const projects=db.collection<Projects>("projects");
 
-const ProjectSchema=new mongoose.Schema({
-    name:
-    {type:String,required:true},
 
-    image:{
-        type:String
-    },
+// import mongoose from "mongoose";
 
-    about:{
-        type:String,
-        default:" "
-    },
+// const ProjectSchema=new mongoose.Schema({
+//     name:
+//     {type:String,required:true},
 
-    ownerId:{
-        type: mongoose.Schema.Types.ObjectId,
-         ref: "User",}
+//     image:{
+//         type:String
+//     },
 
-}, 
-{
-    timestamps: true,
-  })
+//     about:{
+//         type:String,
+//         default:" "
+//     },
+
+//     ownerId:{
+//         type: mongoose.Schema.Types.ObjectId,
+//          ref: "User",}
+
+// }, 
+// {
+//     timestamps: true,
+//   })
 
   
 
-export default mongoose.models.Project || mongoose.model("Project",ProjectSchema);
+// export default mongoose.models.Project || mongoose.model("Project",ProjectSchema);

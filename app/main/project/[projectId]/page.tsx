@@ -23,7 +23,8 @@ interface User {
 }
 
 interface Member {
-  userId: User;
+  _id: string;
+  username:string
 }
 
 interface Task {
@@ -34,6 +35,7 @@ interface Task {
   priority: string;
   dueDate: string;
   assignedTo?: string;
+  members:Member []
 }
 
 interface Project {
@@ -43,6 +45,7 @@ interface Project {
   ownerId: string;
   image: string | null;
   members: Member[];
+  assignTo:string | null
 }
 
 export default function ProjectId() {
@@ -131,6 +134,15 @@ export default function ProjectId() {
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
         <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
         <p className="text-sm font-medium text-red-500">Failed to fetch project tasks.</p>
+         <div className="mt-1">
+              <AddTask
+                
+                trigger={
+                  
+                  <p>   + Add Task</p>
+                }
+              />
+            </div>
       </div>
     );
   }
@@ -174,7 +186,7 @@ export default function ProjectId() {
               {column.list.map((task) => {
                 // Find currently assigned project team member explicitly
                 const assignedMember = currentProject?.members?.find(
-                  (m) => m.userId?._id === task.assignedTo
+                  (m) => m._id === task.assignedTo
                 );
 
                 return (
@@ -230,7 +242,7 @@ export default function ProjectId() {
                         >
                           <SelectTrigger className="w-full h-8 text-[11px] font-medium rounded-lg border-slate-200 bg-white hover:bg-slate-50 shadow-none focus:ring-1 focus:ring-blue-500/20">
                             <SelectValue placeholder="Assign member">
-                              {assignedMember ? assignedMember.userId.name : "Assign member"}
+                              {task.assignedTo ? task.assignedTo : "Assign member"}
                             </SelectValue>
                           </SelectTrigger>
 
@@ -244,17 +256,17 @@ export default function ProjectId() {
                                 Unassigned
                               </SelectItem>
 
-                              {currentProject?.members?.map((m) => (
+                              {task?.members?.map((m) => (
                                 <SelectItem
-                                  key={m.userId?._id}
-                                  value={m.userId?._id || ""}
+                                  key={m._id}
+                                  value={m._id || ""}
                                   className="text-xs"
                                 >
                                   <div className="flex items-center gap-2">
                                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-[9px] font-bold ring-1 ring-slate-200">
-                                      {m.userId?.name?.charAt(0).toUpperCase()}
+                                      {m.username?.charAt(0).toUpperCase()}
                                     </div>
-                                    <span className="truncate font-medium text-slate-700">{m.userId?.name}</span>
+                                    <span className="truncate font-medium text-slate-700">{m.username}</span>
                                   </div>
                                 </SelectItem>
                               ))}

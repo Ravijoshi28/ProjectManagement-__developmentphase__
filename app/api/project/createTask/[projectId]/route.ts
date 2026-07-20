@@ -1,12 +1,13 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import Project from "@/app/Models/Project";
-import Tasks from "@/app/Models/Tasks";
+import { projects } from "@/app/Models/Project";
+import { tasks } from "@/app/Models/Tasks";
+import { TaskSchema } from "@/app/schema/zod";
+
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:string}>}) {
-    await ConnectDb();
+   
     const {projectId}=await params;
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
@@ -20,9 +21,9 @@ export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:
     
     try {
         const user = verifyToken(token);
-        const body = await req.json();
+        const body = TaskSchema.parse(await req.json());
 
-        const project = await Project.findById(projectId);
+        const project = await projects.findOne({_id:projectId});
         
         if (!project) {
             return Response.json(
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:
             );
         }
         
-               if (user.id !== project.ownerId.toString()) {
+               if (user.id !== project.ownerId) {
             return Response.json(
                 { message: "You are not the admin" },
                 { status: 403 }
@@ -39,19 +40,23 @@ export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:
         }
         
         
-        const newTask = new Tasks({
-            projectId,
-            title: body.title,
-            description: body.description,
-            dueDate: body.dueDate,
-            status: body.status,
-            priority: body.priority,
-        });
+      const task=  await tasks.insertOne({
+          _id: crypto.randomUUID(),
+          projectId,
+          title: body.title,
+          description: body.description,
+          dueDate: body.dueDate,
+          status: body.status,
+          priority: body.priority,
+          assignedTo: null,
+          watchers: null,
+          completedAt: body.dueDate
+      });
         
-        await newTask.save();
+       
 
         return Response.json(
-            { message: "Task created successfully", task: newTask },
+            { message: "Task created successfully", task },
             { status: 201 }
         );
     } catch (error) {

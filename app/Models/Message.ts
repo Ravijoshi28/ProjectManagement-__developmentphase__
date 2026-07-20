@@ -1,51 +1,56 @@
-import mongoose from "mongoose";
+import { db } from "../lib/astradb";
+import type { Message } from "./typeValidator";
+
+export const messages=db.collection<Message>("messages");
+
+// import mongoose from "mongoose";
 
 
-const MessageSchema=new mongoose.Schema({
-    projectId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Project",
-        required:true
-    },
-    senderId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-         required:true
-    },
-    content:{
-        type:String,
-         required:true
-    },
-    type:{
-        type:String,
-        enum:["text","file","system"]
-    },
-    file: {
-  url: String,
-  mimeType: String,
-},
-    replyTo:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Message"
-    },
-    edited:{
-        type:Boolean
-    },
-    editedDate:{
-        type:Date
-    },
+// const MessageSchema=new mongoose.Schema({
+//     projectId:{
+//         type:mongoose.Schema.Types.ObjectId,
+//         ref:"Project",
+//         required:true
+//     },
+//     senderId:{
+//         type:mongoose.Schema.Types.ObjectId,
+//         ref:"User",
+//          required:true
+//     },
+//     content:{
+//         type:String,
+//          required:true
+//     },
+//     type:{
+//         type:String,
+//         enum:["text","file","system"]
+//     },
+//     file: {
+//   url: String,
+//   mimeType: String,
+// },
+//     replyTo:{
+//         type:mongoose.Schema.Types.ObjectId,
+//         ref:"Message"
+//     },
+//     edited:{
+//         type:Boolean
+//     },
+//     editedDate:{
+//         type:Date
+//     },
 
-},{
-    timestamps:true
-})
+// },{
+//     timestamps:true
+// })
 
-        MessageSchema.index({
-            projectId:1
-        })
-         MessageSchema.index({
-            senderId:1
-        })
+//         MessageSchema.index({
+//             projectId:1
+//         })
+//          MessageSchema.index({
+//             senderId:1
+//         })
          
 
 
-export default mongoose.models.Message || mongoose.model("Message",MessageSchema)
+// export default mongoose.models.Message || mongoose.model("Message",MessageSchema)

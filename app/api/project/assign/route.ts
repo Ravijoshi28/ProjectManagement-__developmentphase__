@@ -1,7 +1,8 @@
 import { verifyToken } from "@/app/lib/verifyToken";
-import Notifications from "@/app/Models/Notifications";
-import Tasks from "@/app/Models/Tasks";
-import User from "@/app/Models/User";
+import { notifications } from "@/app/Models/Notifications";
+import { projects } from "@/app/Models/Project";
+import { tasks } from "@/app/Models/Tasks";
+import { users } from "@/app/Models/User";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
@@ -24,18 +25,28 @@ export async function PATCH(req: NextRequest) {
       { status: 401 }
     );
   }
+  const id=user.id;
 
   try {
     
     const body = await req.json();
-    const Task=await Tasks.findById(body.taskId).populate("projectId" ,"ownerId");
-    if (!Task) {
+    const Task=await tasks.findOne({_id:body.taskId});
+      if (!Task) {
   return Response.json(
     { message: "Task not found" },
     { status: 404 }
   );
 }
-    if (user.id !== Task.projectId.ownerId.toString()) {
+    const project=await projects.findOne({_id:Task.projectId})
+  
+       if (!project) {
+  return Response.json(
+    { message: "Project not found" },
+    { status: 404 }
+  );
+}
+
+    if (user.id !== project?.ownerId) {
   return Response.json(
     { message: "You are not the owner" },
     { status: 401 }
@@ -43,40 +54,40 @@ export async function PATCH(req: NextRequest) {
 }
     console.table(body);
 
-    const task = await Tasks.findByIdAndUpdate(
-      body.taskId,
-      {
-        assignedTo: body.member, // frontend sends "user"
-      },
-      {
-         returnDocument: "after"
-      }
-    );
+const result = await tasks.findOneAndUpdate(
+  {
+    _id: body.taskId,
+  },
+  {
+    $set: {
+      assignedTo: body.member,
+    },
+  },
+  {
+    returnDocument: "after",
+  }
+);
 
-    if (!task) {
-      return Response.json(
-        { message: "No task with this id" },
-        { status: 404 }
-      );
-    }
-    const username=await User.findById(user.id);
+  
+    const User=await users.findOne({_id:id})
 
-    await Notifications.create({
-      senderId: user.id,
-    sender: username.username,
-
-    userId: body.member,
-
-    title: "Assign Task",
-    message: `${username.username} assigned you the task "${task.title}"`,
-    type: "task_assigned",
-    projectId:task.projectId,
-    })
+await notifications.insertOne({
+  senderId: user.id,
+  sender: User?.username ?? "admin",
+  receiverId: body.member,
+  title: "Assign Task",
+  message: `${User?.username ?? "Admin"} assigned you the task "${Task.title}"`,
+  type: "task_assigned",
+  projectId: Task.projectId,
+  createdAt: new Date(),
+  seen: false,
+  taskId: body.taskId
+});
 
     return Response.json(
       {
         message: "Task assigned successfully",
-        data: task,
+        data: result,
       },
       { status: 200 }
     );

@@ -1,63 +1,69 @@
-import mongoose from "mongoose";
+import { db } from "../lib/astradb";
+import type { Notifications } from "./typeValidator";
 
-const NotificationSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    sender:{
-        type:String,
-        required:true
-    },
-    senderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+export const notifications=db.collection<Notifications>("notifications")
 
-    title: {
-      type: String,
-      required: true,
-    },
 
-    message: {
-      type: String,
-      required: true,
-    },
+// import mongoose from "mongoose";
 
-    type: {
-      type: String,
-      enum: [
-        "task_assigned",
-        "task_updated",
-        "project_invite",
-      ],
-    },
+// const NotificationSchema = new mongoose.Schema(
+//   {
+//     userId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//       required: true,
+//     },
+//     sender:{
+//         type:String,
+//         required:true
+//     },
+//     senderId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//     },
 
-    seen: {
-      type: Boolean,
-      default: false,
-    },
+//     title: {
+//       type: String,
+//       required: true,
+//     },
 
-    projectId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-    },
+//     message: {
+//       type: String,
+//       required: true,
+//     },
 
-    taskId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tasks",
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+//     type: {
+//       type: String,
+//       enum: [
+//         "task_assigned",
+//         "task_updated",
+//         "project_invite",
+//       ],
+//     },
 
-    NotificationSchema.index({
-        userId:1
-    });
+//     seen: {
+//       type: Boolean,
+//       default: false,
+//     },
 
-export default mongoose.models.Notification ||
-  mongoose.model("Notification", NotificationSchema);
+//     projectId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "Project",
+//     },
+
+//     taskId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "Tasks",
+//     },
+//   },
+//   {
+//     timestamps: true,
+//   }
+// );
+
+//     NotificationSchema.index({
+//         userId:1
+//     });
+
+// export default mongoose.models.Notification ||
+//   mongoose.model("Notification", NotificationSchema);

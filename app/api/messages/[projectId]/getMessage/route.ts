@@ -1,5 +1,6 @@
 import { verifyToken } from "@/app/lib/verifyToken";
-import Message from "@/app/Models/Message";
+import { messages } from "@/app/Models/Message";
+import { pMembers } from "@/app/Models/PMember";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
@@ -20,6 +21,7 @@ export async function GET(
   }
 
   const user = verifyToken(token);
+  const id=user.id;
 
   if (!user.id) {
     return Response.json(
@@ -29,14 +31,22 @@ export async function GET(
   }
 
   try {
-    const messages = await Message.find({ projectId })
-      .sort({ createdAt: 1 })
-      .populate("senderId", "name image");
+      const project=await pMembers.findOne({projectId,userId:id});
+      if(!project){
+         return Response.json({ data:"u are not the member of the group" }, { status: 200 });
+      }
 
-    return Response.json({ messages }, { status: 200 });
+    const messageList = (await messages.find({ projectId:projectId }).sort({createdAt:1}).toArray());
+
+    if(messageList.length===0){
+       return Response.json({ message:"be the first one to send message in group",data:[] }, { status: 200 });
+    }
+   
+
+    return Response.json({ data:messageList }, { status: 200 });
   } catch (error) {
     return Response.json(
-      { message: "Something went wrong while fetching the messages" },
+      { data: "Something went wrong while fetching the messages" },
       { status: 500 }
     );
   }

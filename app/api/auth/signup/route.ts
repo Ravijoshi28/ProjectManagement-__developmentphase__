@@ -1,19 +1,21 @@
-import User from "@/app/Models/User";
-import ConnectDb from "@/app/lib/mongodb";
-import { Generate } from "@/app/lib/tokenGenerate";
+// import User from "@/app/Models/User";
+// import ConnectDb from "@/app/lib/mongodb";
+// import { Generate } from "@/app/lib/tokenGenerate";
+import { users } from "@/app/Models/User";
+import { UserSchema } from "@/app/schema/zod";
 import bcrypt from "bcryptjs";
 
 
 const PEPPER=process.env.PASSWORD_PEPPER
 
 export async function POST(req: Request) {
-  await ConnectDb();
+  // await ConnectDb();
 
   try {
-    const body = await req.json();
+    const body = UserSchema.parse(await req.json());
 
     // check existing email
-    const existingEmail = await User.findOne({
+    const existingEmail = await users.findOne({
       email: body.email,
     });
 
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     // check existing username
-    const existingUsername = await User.findOne({
+    const existingUsername = await users.findOne({
       username: body.username,
     });
 
@@ -56,14 +58,15 @@ export async function POST(req: Request) {
     );
 
     // create user
-    const newUser = new User({
-      name: body.name,
-      email: body.email,
-      password: hashedPassword,
-      username: body.username,
-    });
-
-    await newUser.save();
+  await users.insertOne({
+  _id: crypto.randomUUID(), // optional if Astra generates one for you
+  name: body.username,
+  email: body.email,
+  password: hashedPassword,
+  username: body.username,
+  image: null,
+  createdAt: new Date(),
+});
 
     
     

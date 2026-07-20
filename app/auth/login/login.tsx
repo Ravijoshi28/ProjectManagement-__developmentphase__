@@ -25,7 +25,7 @@ export default function Login() {
   })
 
   const submit =async (e: React.FormEvent<HTMLFormElement>) => {
-  
+      e.preventDefault();
 
     try{
        await login(formData);

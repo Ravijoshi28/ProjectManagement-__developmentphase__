@@ -1,13 +1,16 @@
-import ConnectDb from "@/app/lib/mongodb";
+// import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import Project from "@/app/Models/Project";
-import PMember from "@/app/Models/PMember";
+import { pMembers } from "@/app/Models/PMember";
+import { projects } from "@/app/Models/Project";
+import { ProjectSchema } from "@/app/schema/zod";
+// import Project from "@/app/Models/Project";
+// import PMember from "@/app/Models/PMember";
 import { cookies } from "next/headers";
 
 
 export async function POST(req:Request,){
 
-    await ConnectDb();
+    // await ConnectDb();
     const cookieExt=await cookies()
     const token=cookieExt.get("token")?.value;
 
@@ -20,7 +23,7 @@ export async function POST(req:Request,){
 
 
    try{
-        const body=await req.json();
+        const body=ProjectSchema.parse(  await req.json());
 
         if(!body.name){
             return Response.json({message:"Please provide Project with a name"},{status:400});
@@ -28,27 +31,41 @@ export async function POST(req:Request,){
         
         
 
-        const newProject= new Project({
+      const project=crypto.randomUUID()
+
+      try{
+        await  projects.insertOne({
+        _id:project,
             name:body.name,
             ownerId:id,
-            about:body?.about
+            about:body?.about,
+            image:body?.image ?? null,
+            memberId:[id],
+            createdAt:new Date()
         })
 
-        await newProject.save();
+      
 
           
-        const NewMember=new PMember({
-            projectId:newProject._id,
+     await pMembers.insertOne({
+        _id:crypto.randomUUID(),
+          projectId:project,
             userId:id,
-            role:"admin"
-        })
+            role:"owner",
+            joinedAt:new Date()
+     })
         
-        await NewMember.save()
+      }
+      catch(error){
+        console.log(error)
+         return Response.json({message:"Project creation failed please try again",error},{status:500});
+      }
+        // await NewMember.save()
           return Response.json({message:"Project successfully created"},{status:201});
    }
    catch(error){
-       
-           return Response.json({message:"Project creation failed please try again"},{status:500});
+            console.log(error)
+           return Response.json({message:"Project creation failed please try again",error},{status:500});
    }
 
 }

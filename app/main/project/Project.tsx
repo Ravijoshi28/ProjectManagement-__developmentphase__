@@ -33,7 +33,7 @@ export default function Projects() {
   const { user } = useUserState();
   const { setProjectId } = useProjectState();
 
-
+  console.log(user)
   const {
     data: projects = [],
     isLoading,
@@ -173,9 +173,9 @@ export default function Projects() {
           </Card>
         ))}
 
-        {/* Dynamic Add Project Action Modal Component Card Context */}
-        <CreateProjectModal />
+        
       </div>
+       
     </div>
   );
 }

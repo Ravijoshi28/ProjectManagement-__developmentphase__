@@ -1,11 +1,9 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import Tasks from "@/app/Models/Tasks";
+import { tasks } from "@/app/Models/Tasks";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async  function PATCH(req:NextRequest){
-    await ConnectDb();
     const cookieExtract=await cookies();
     const token=cookieExtract.get("token")?.value;
 
@@ -17,15 +15,22 @@ export async  function PATCH(req:NextRequest){
       if(!user){
         return Response.json({message:"user is not authorised"},{status:401});
     }
+    const id=user.id;
     
 
     try {
          const body = await req.json();
         const taskId=await req.nextUrl.searchParams.get("task");
 
-        const update=await Tasks.findByIdAndUpdate(taskId,
+         if(!taskId){
+        return Response.json({message:"no task available"},{status:401});
+    }
+
+       await tasks.findOneAndUpdate({_id:taskId},
             {
-                status:body.status
+              $set :{
+                    status:body.status
+              } 
             })
 
 

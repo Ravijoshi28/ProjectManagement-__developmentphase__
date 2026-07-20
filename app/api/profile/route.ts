@@ -1,11 +1,9 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import User from "@/app/Models/User";
+import { users } from "@/app/Models/User";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function PATCH(req:NextRequest){
-    await ConnectDb();
     const cookieExt=await cookies();
     const token=cookieExt.get("token")?.value;
     if(!token){
@@ -18,7 +16,7 @@ export async function PATCH(req:NextRequest){
 
     try{
         const body=await req.json();
-        const profile=await User.findById(user.id);
+        const profile=await users.findOne({_id:user.id});
       
        if (!profile) {
         return Response.json(
@@ -27,10 +25,16 @@ export async function PATCH(req:NextRequest){
       );
     }
 
-    profile.image = body.image;
-    profile.name = body.name;
+    await users.findOneAndUpdate({
+        _id:user.id
+    },{
+        $set:{
+            image:body.image,
+            username:body.username
+        }
+    })
 
-    await profile.save();
+    
         return Response.json({message:"Changes made"},{status:200})
     }
     catch(error){

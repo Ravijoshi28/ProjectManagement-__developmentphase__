@@ -30,9 +30,9 @@ console.log("working")
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+        bufferCommands: false,
       // Force Node to look up via IPv4 only
-      family: 4, 
+        family: 4,
     };
 
     cached.promise = mongoose.connect(MONGODB_URL!, opts)
@@ -48,7 +48,7 @@ console.log("working")
   }
 
   try {
-    cached.conn = await cached.promise;
+  cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null; // Clear out the broken promise on failure
     throw e;

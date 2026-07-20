@@ -138,7 +138,7 @@ useEffect(()=>{
 
   if (notifications.length === 0) {
     return (
-      <div className="fixed top-4 left-4 z-50 w-full max-w-sm p-4">
+      <div className="fixed top-13 left-50 z-1 w-full max-w-sm p-4">
         <div className="flex items-center gap-3 p-3 rounded-xl border bg-white shadow-sm">
           <BellOff
             size={16}

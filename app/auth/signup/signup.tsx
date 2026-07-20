@@ -1,3 +1,6 @@
+"use client"
+
+import { useUserState } from "@/app/zustand/userState"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,9 +13,28 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useState } from "react"
+
+interface UserData {
+  username: string;
+  email: string;
+  password:string;
+}
+
 
 export default function Signup(){
-
+    const {signup}=useUserState();
+    const [formData,setData]=useState<UserData>({
+      username:"",
+      email:"",
+      password:""
+    })
+    const handleSubmit=async()=>{
+      await signup(formData);
+      setData({
+        username:"",email:"",password:""
+      })
+    }
     return <>
      <Card className="h-100 w-full gap-5 ">
         <CardHeader>
@@ -23,14 +45,16 @@ export default function Signup(){
             </CardAction>
         </CardHeader>
           <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
+                value={formData.email}
                 placeholder="m@example.com"
+                onChange={(e)=>setData((prev)=>({...prev,email:e.target.value}))}
                 required
               />
             </div>
@@ -41,7 +65,9 @@ export default function Signup(){
               <Input
                 id="Name"
                 type="text"
+                value={formData.username}
                 placeholder="FullName"
+                onChange={(e)=>setData((prev)=>({...prev,username:e.target.value}))}
                 required
               />
             </div>
@@ -56,15 +82,18 @@ export default function Signup(){
                   Forgot your password?
                 </a>
               </div>
-              <Input id="password" type="password" required />
+              <Input id="password" type="password"
+              value={formData.password}
+              onChange={(e)=>setData((prev)=>({...prev,password:e.target.value}))} required />
             </div>
           </div>
+          <Button type="submit" className="w-full">
+          Signup
+        </Button>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
+        
         <Button variant="outline" className="w-full">
           Login with Google
         </Button>

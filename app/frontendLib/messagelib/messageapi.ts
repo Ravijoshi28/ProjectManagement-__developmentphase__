@@ -38,5 +38,5 @@ console.log(error)
 export const getMessages=async(projectId:string)=>{
     const res=await axiosInstance.get(`/messages/${projectId}/getMessage`);
     console.log(res);
-    return res.data.messages;
+    return res.data.data;
 }

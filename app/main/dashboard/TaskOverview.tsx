@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon, ClockIcon, Activity, Flame, ShieldAlert } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { recentActivity, userDeadline } from "@/app/frontendLib/dashboardlib/dashBoard";
+import ProjectSkeleton from "../skeleton/skeleton";
 
 interface recentactivity {
   _id: string;
@@ -46,7 +47,11 @@ export default function TaskOverview() {
   queryFn: recentActivity,
   staleTime: 5 * 60 * 1000,
 });
-
+    if(isLoading){
+      return (<>
+      <ProjectSkeleton/>
+      </>)
+    }
   return (
     <div className="w-full h-full flex flex-col justify-between font-sans">
       <div>
@@ -111,6 +116,13 @@ const isUrgent = (dueDate: string) => {
 
   return diff <= 2 * 24 * 60 * 60 * 1000; // within 2 days
 };
+
+if(isLoading){
+      return (<>
+      <ProjectSkeleton/>
+      </>)
+    }
+
   return (
     <div className="space-y-3 w-full">
       {userDeadlines.map((item) => (

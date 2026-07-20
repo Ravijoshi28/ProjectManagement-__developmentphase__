@@ -1,11 +1,10 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import Tasks from "@/app/Models/Tasks";
+import { tasks } from "@/app/Models/Tasks";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  await ConnectDb();
+  
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -17,6 +16,7 @@ export async function GET(req: NextRequest) {
   }
 
   const user = verifyToken(token);
+  const id=user.id;
   console.log("working");
   if (!user) {
     return Response.json(
@@ -26,17 +26,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const tasks = await Tasks.find({
-      assignedTo: user.id,
-    });
-    console.log("working");
-    return Response.json(
-      {
-        data: tasks,
-        count: tasks.length,
-      },
-      { status: 200 }
-    );
+   
+        const taskList=await tasks.find({assignedTo:id}).toArray();
+
+        if(taskList.length==0){
+                return Response.json({message:[]},{status:200})
+        }
+         return Response.json({message:taskList},{status:200})
   } catch (error) {
     console.error("GET ASSIGNED TASKS ERROR:", error);
 

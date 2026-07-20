@@ -1,12 +1,11 @@
-import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
-import Notifications from "@/app/Models/Notifications";
+import { notifications } from "@/app/Models/Notifications";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function GET(req:NextRequest){
 
-    await ConnectDb()
+   
 
      const cookieExt = await cookies();
       const token = cookieExt.get("token")?.value;
@@ -29,13 +28,13 @@ export async function GET(req:NextRequest){
 
       try{
        
-        const notifications=await Notifications.find({userId:user.id}).sort({createdAt:-1})
+        const notificationList=await notifications.find({userId:user.id}).sort({createdAt:-1}).toArray();
 
-        if(notifications.length===0){
-            return Response.json({message:"No Notifications for the user"},{status:200});
+        if(notificationList.length===0){
+            return Response.json({data:[],message:"No Notifications for the user"},{status:200});
         }
 
-        return Response.json({data:notifications},{status:200});
+        return Response.json({data:notificationList},{status:200});
 
 
       }

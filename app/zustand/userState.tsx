@@ -7,6 +7,12 @@ interface Formdata {
   password: string;
 }
 
+interface SignupData {
+  username: string;
+  email: string;
+  password:string;
+}
+
 interface User {
   username: string;
   email: string;
@@ -24,7 +30,7 @@ interface ZustandState {
   loggedin: boolean;
   user: User | null;
 
-  signup: (formdata: Formdata) => Promise<void>;
+  signup: (formdata: SignupData) => Promise<void>;
   login: (formdata: Formdata) => Promise<void>;
   logout: () => Promise<void>;
 
@@ -47,7 +53,10 @@ export const useUserState = create<ZustandState>()(
         console.log(response.data.user.image);
       },
 
-      signup: async () => {},
+      signup: async (formData:SignupData) => {
+        await axiosInstance.post("/auth/signup",formData)
+
+      },
 
       logout: async () => {
         await axiosInstance.post("/auth/logout");

@@ -1,12 +1,9 @@
 import { verifyToken } from "@/app/lib/verifyToken";
-import Tasks from "@/app/Models/Tasks";
+import { tasks } from "@/app/Models/Tasks";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function GET(req:NextRequest){
-
-    
-    
 
     try {
         const cookieExt=await cookies()
@@ -18,12 +15,12 @@ export async function GET(req:NextRequest){
     const user=verifyToken(token);
         const id=user.id;
 
-        const tasks=await Tasks.find({assignedTo:id});
+        const taskList=await tasks.find({assignedTo:id}).toArray();
 
-        if(tasks.length==0){
-                return Response.json({message:"No data to fetch"},{status:200})
+        if(taskList.length==0){
+                return Response.json({message:[]},{status:200})
         }
-         return Response.json({message:tasks},{status:200})
+         return Response.json({message:taskList},{status:200})
 
     } catch (error) {
                 return Response.json({message:"Something went wrong while fetching data"},{status:500})
