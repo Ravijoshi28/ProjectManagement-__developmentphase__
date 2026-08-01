@@ -83,12 +83,7 @@ export default function Login() {
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
 
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
+
                 </div>
 
                 <Input
@@ -113,11 +108,7 @@ export default function Login() {
           </form>
         </CardContent>
 
-        <CardFooter className="flex-col gap-2">
-          <Button variant="outline" className="w-full">
-            Login with Google
-          </Button>
-        </CardFooter>
+        
       </Card>
     </>
   )
