@@ -5,7 +5,7 @@ import { useProjectState } from "@/app/zustand/useProjectState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { Folder, Users, Plus } from "lucide-react";
+import { Folder, Users, Plus, User } from "lucide-react";
 import CreateProjectModal from "./createProject";
 import { useQuery } from "@tanstack/react-query";
 import { getProject } from "@/app/frontendLib/projectlib/projectapi";
@@ -14,10 +14,8 @@ import { useUserState } from "@/app/zustand/userState";
 
 
 interface ProjectMember {
-  userId: {
-    _id: string;
-    name: string;
-  };
+  username:string,
+  email:string,
 }
 
 interface Project {
@@ -44,6 +42,8 @@ export default function Projects() {
     staleTime: 5 * 60 * 1000,
   });
 
+  console.log(projects);
+
   
 
   const skeletons = Array.from({ length: 3 }, (_, idx) => (
@@ -64,7 +64,9 @@ export default function Projects() {
     </Card>
   ));
 
-  if (error) return null;
+  if (error)  {
+   return <p>Create your first Project</p>
+  };
 
   if (isLoading) {
     return (
@@ -133,11 +135,11 @@ export default function Projects() {
                 <div className="flex items-center flex-wrap gap-2 mt-1">
                   <div className="flex -space-x-1.5 overflow-hidden">
                     {project.members?.slice(0, 4).map((member, mIdx) => {
-                      const initials = member.userId?.name ? member.userId.name.substring(0, 2).toUpperCase() : "??";
+                      const initials = member?.username ? member.username.substring(0, 2).toUpperCase() : (<User/>);
                       return (
                         <div 
                           key={mIdx} 
-                          title={member.userId?.name}
+                          title={member.username}
                           className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-600 ring-2 ring-white select-none cursor-default"
                         >
                           {initials}

@@ -50,7 +50,7 @@ export interface Notifications{
     seen:boolean;
     sender:string;
     senderId:string;
-    receiverId:string;
+    userId:string;
     type:"task_assigned"|
         "task_updated"|
         "project_invite";

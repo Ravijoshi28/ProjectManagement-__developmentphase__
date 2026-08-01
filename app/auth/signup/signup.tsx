@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
+import { toast } from "sonner"
 
 interface UserData {
   username: string;
@@ -29,11 +30,18 @@ export default function Signup(){
       email:"",
       password:""
     })
-    const handleSubmit=async()=>{
-      await signup(formData);
+    const handleSubmit=async(e:React.FormEvent<HTMLFormElement>)=>{
+      e.preventDefault()
+      try {
+        await signup(formData);
       setData({
         username:"",email:"",password:""
       })
+      toast.success("user created ...login to enter")
+      } catch (error) {
+        toast.error("server error")
+      }
+      
     }
     return <>
      <Card className="h-100 w-full gap-5 ">
@@ -83,7 +91,9 @@ export default function Signup(){
                 </a>
               </div>
               <Input id="password" type="password"
+              placeholder="length should be more than 8"
               value={formData.password}
+              minLength={8}
               onChange={(e)=>setData((prev)=>({...prev,password:e.target.value}))} required />
             </div>
           </div>

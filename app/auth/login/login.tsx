@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation";
 import { useState } from "react"
+import { toast } from "sonner"
 
 export default function Login() {
   const router = useRouter();
@@ -31,11 +32,13 @@ export default function Login() {
        await login(formData);
 
     setData({email:"",password:""});
+    toast.success("Successfully Entered")
     router.refresh();
       router.push("/main/dashboard");
     }
     catch(error){
         console.log(error);
+        toast.error("Password or email wrong ")
     }
   
   }
@@ -91,6 +94,7 @@ export default function Login() {
                 <Input
                   id="password"
                   type="password"
+                  minLength={8}
                   value={formData.password}
                   onChange={(e) =>
                     setData({

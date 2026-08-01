@@ -25,6 +25,7 @@ import {
 } from "@tanstack/react-query";
 import { UserTasks, updateTaskStatus } from "@/app/frontendLib/userlib/userapis";
 import { useUserState } from "@/app/zustand/userState";
+import { toast } from "sonner";
 
 interface Tasks {
   _id: string;
@@ -56,6 +57,8 @@ export default function BoardPage() {
     staleTime: 5 * 60 * 1000,
     enabled: !!user?.id,
   });
+
+  console.log(tasks)
 
   useEffect(() => {
     return () => {
@@ -123,8 +126,10 @@ export default function BoardPage() {
             updateMutation.mutateAsync({ taskId, status })
           )
         );
+        toast.success("Task updated successfully")
       } catch (err) {
         console.error(err);
+        toast.error("Error while updating task..")
         queryClient.invalidateQueries({ queryKey: ["UserTask"] });
       }
     }, 1000);

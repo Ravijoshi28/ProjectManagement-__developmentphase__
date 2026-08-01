@@ -52,7 +52,6 @@ export async function PATCH(req: NextRequest) {
     { status: 401 }
   );
 }
-    console.table(body);
 
 const result = await tasks.findOneAndUpdate(
   {
@@ -74,7 +73,7 @@ const result = await tasks.findOneAndUpdate(
 await notifications.insertOne({
   senderId: user.id,
   sender: User?.username ?? "admin",
-  receiverId: body.member,
+  userId: body.member,
   title: "Assign Task",
   message: `${User?.username ?? "Admin"} assigned you the task "${Task.title}"`,
   type: "task_assigned",
@@ -83,7 +82,7 @@ await notifications.insertOne({
   seen: false,
   taskId: body.taskId
 });
-
+      
     return Response.json(
       {
         message: "Task assigned successfully",

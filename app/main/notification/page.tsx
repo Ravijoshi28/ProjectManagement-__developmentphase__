@@ -117,7 +117,7 @@ useEffect(()=>{
 
   if (isLoading) {
     return (
-      <div className="fixed bottom-4 left-4 z-50">
+      <div className="fixed top-20 left-30 z-50 sm:top-20 sm:left-10">
         <div className="p-3 rounded-xl border bg-white shadow-sm text-sm">
           Loading notifications...
         </div>
@@ -138,7 +138,7 @@ useEffect(()=>{
 
   if (notifications.length === 0) {
     return (
-      <div className="fixed top-13 left-50 z-1 w-full max-w-sm p-4">
+      <div className="fixed top-13 left-5 z-1 w-full max-w-sm p-4 md:left-50">
         <div className="flex items-center gap-3 p-3 rounded-xl border bg-white shadow-sm">
           <BellOff
             size={16}

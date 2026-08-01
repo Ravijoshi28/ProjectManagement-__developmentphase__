@@ -3,12 +3,10 @@ import { Server } from "socket.io";
 
 const httpServer = createServer();
 
-const io = new Server(httpServer, {
+export const io = new Server(httpServer, {
   cors: {
-    origin: [
+    origin: 
       "http://localhost:3000",
-      "https://project-management-developmentphase.vercel.app",
-    ],
     credentials: true,
   },
 });
@@ -28,6 +26,10 @@ io.on("connection", (socket) => {
     io.to(projectId).emit("receive-task", formData);
   });
 
+  socket.on("task-assigned",(userId)=>{
+    socket.to(userId).emit("receive-assigned");
+  })
+
   socket.on("send-message", ({ projectId, message }) => {
     io.to(projectId).emit("receive-message", message);
   });
@@ -38,6 +40,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("notification", ({ addedEmail }) => {
+      console.log(addedEmail);
+  console.log(typeof addedEmail);
+  console.log(Array.isArray(addedEmail));
     addedEmail.forEach((user: any) => {
       io.to(user.id).emit("notification");
     });
@@ -48,7 +53,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT =  4000;
 
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`Socket server running on ${PORT}`);

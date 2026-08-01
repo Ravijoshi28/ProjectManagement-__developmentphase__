@@ -6,6 +6,7 @@ import { User, Mail, Shield, Building, LayoutGrid, BellRing, Check, Save, LogOut
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { changeProfile } from "@/app/frontendLib/profile/profile";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { user ,setData,logout} = useUserState();
@@ -51,8 +52,10 @@ export default function ProfilePage() {
        name: formData.name,
         image:formData.image ??null,
        })
+       toast.success("Changes saved successfully");
     }catch(error){
       console.log("error is ",error)
+      toast.error("Changes failed try again later")
     }finally{
       setIsSaving(false);
     }

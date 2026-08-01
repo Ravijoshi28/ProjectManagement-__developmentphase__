@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
    
         const taskList=await tasks.find({assignedTo:id}).toArray();
 
-        if(taskList.length==0){
+        if(taskList.length===0){
                 return Response.json({message:[]},{status:200})
         }
          return Response.json({message:taskList},{status:200})

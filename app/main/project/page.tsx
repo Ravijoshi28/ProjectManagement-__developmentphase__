@@ -6,7 +6,7 @@ export default function Project(){
     return (<div>
         
         <Projects/>
-        <div className="p-3 ml-3">
+        <div className=" p-1 ml-8  md:ml-34">
              <CreateProjectModal/>
         </div>
        </div>

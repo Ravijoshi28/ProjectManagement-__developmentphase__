@@ -1,0 +1,234 @@
+"use client"
+
+import fetchAdminStats from "@/app/frontendLib/adminlib/admin"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useQuery } from "@tanstack/react-query"
+import { Users, FolderKanban, CheckCircle2, MessageSquare, ArrowUpRight, TrendingUp } from "lucide-react"
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
+
+export default function AdminDashboard() {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["adminDashboardStats"],
+    queryFn: fetchAdminStats,
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
+  })
+  console.log(data);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+        Loading admin metrics...
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-red-500">
+        Error: {(error as Error).message}
+      </div>
+    )
+  }
+
+  // Extract stats and dynamic pie chart data from backend response
+  const stats = data?.data?.stats || {
+    totalUsers: 0,
+    totalProjects: 0,
+    totalTasks: 0,
+    totalMessages: 0,
+  }
+
+  const taskInteractionData = data?.data?.taskInteractionData || []
+  
+  // Calculate total messages from dynamic task data (fallback to 0)
+  const totalMessages = taskInteractionData.reduce(
+    (acc: number, curr: { messages: number }) => acc + curr.messages,
+    0
+  ) || stats.totalMessages
+
+  return (
+    <div className="flex-1 space-y-6 p-6 md:p-8 bg-background">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Overview of workspace activity, user growth, and task message metrics.
+          </p>
+        </div>
+      </div>
+
+      {/* Top Metric Cards Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Total Users */}
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Total Users
+            </CardTitle>
+            <div className="rounded-lg bg-primary/10 p-2 text-primary">
+              <Users className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+            <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1 font-medium">
+              <ArrowUpRight className="h-3 w-3" /> Live from DB
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Active Projects */}
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Active Projects
+            </CardTitle>
+            <div className="rounded-lg bg-indigo-500/10 p-2 text-indigo-500">
+              <FolderKanban className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalProjects.toLocaleString()}</div>
+            <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1 font-medium">
+              <ArrowUpRight className="h-3 w-3" /> Total active
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Task Messages */}
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Task Messages
+            </CardTitle>
+            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-500">
+              <MessageSquare className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalMessages.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">Across all task threads</p>
+          </CardContent>
+        </Card>
+
+        {/* Total Tasks */}
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Total Tasks
+            </CardTitle>
+            <div className="rounded-lg bg-amber-500/10 p-2 text-amber-500">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalTasks?.toLocaleString() || 0}</div>
+            <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1 font-medium">
+              <TrendingUp className="h-3 w-3" /> Monitored status
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analytics Section */}
+      <div className="grid gap-6 md:grid-cols-7">
+        {/* Pie Chart: Task Interaction by Messages */}
+        <Card className="md:col-span-4 border border-border/60 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg">Task Interaction Distribution</CardTitle>
+            <CardDescription>
+              Breakdown of total tasks  ({totalMessages}) categorized by task status.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[320px] w-full">
+              {taskInteractionData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  No task interaction data recorded yet.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={taskInteractionData}
+                      dataKey="messages"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={105}
+                      paddingAngle={4}
+                    >
+                      {taskInteractionData.map((entry: { name: string; color: string }, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: any) => [`${value} messages`, "Activity"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(15, 23, 42, 0.9)",
+                        borderColor: "rgba(255, 255, 255, 0.1)",
+                        borderRadius: "8px",
+                        color: "#fff",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      height={36}
+                      iconType="circle"
+                      formatter={(value) => (
+                        <span className="text-xs font-medium text-muted-foreground">{value}</span>
+                      )}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Message Breakdown List */}
+        <Card className="md:col-span-3 border border-border/60 shadow-sm flex flex-col justify-between">
+          <CardHeader>
+            <CardTitle className="text-lg">Message Metrics</CardTitle>
+            <CardDescription>Raw counts by task stage</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {taskInteractionData.map((item: { name: string; messages: number; color: string }) => {
+              const percentage = totalMessages > 0 ? Math.round((item.messages / totalMessages) * 100) : 0
+              return (
+                <div key={item.name} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-medium">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      {item.name}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {item.messages} msgs ({percentage}%)
+                    </span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full transition-all duration-300"
+                      style={{
+                        width: `${percentage}%`,
+                        backgroundColor: item.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}

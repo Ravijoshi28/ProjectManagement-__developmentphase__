@@ -2,9 +2,11 @@ import { verifyToken } from "@/app/lib/verifyToken";
 import { projects } from "@/app/Models/Project";
 import { tasks } from "@/app/Models/Tasks";
 import { TaskSchema } from "@/app/schema/zod";
+import { io } from "@/server";
 
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+
 
 export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:string}>}) {
    
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:
           completedAt: body.dueDate
       });
         
-       
+      
 
         return Response.json(
             { message: "Task created successfully", task },

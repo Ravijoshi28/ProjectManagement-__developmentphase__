@@ -19,6 +19,7 @@ import {
 } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface AddmemberProps {
   trigger: React.ReactNode;
@@ -71,6 +72,8 @@ export default function AddMember({
 
   const queryClient = useQueryClient();
 
+    
+
   const mutation = useMutation({
     mutationFn: () =>
       AddMembers({projectId,formdata:{addedEmail}} ),
@@ -101,8 +104,14 @@ export default function AddMember({
 
   const submit = () => {
     if (addedEmail.length === 0) return;
+   try {
+     mutation.mutate();
+     toast.success("member added")
+     
+   } catch (error) {
+    toast.error("cant add member try later");
+   }
    
-    mutation.mutate();
   };
 
   const users: User[] = Array.isArray(data?.message)

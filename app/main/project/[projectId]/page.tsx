@@ -74,7 +74,7 @@ export default function ProjectId() {
           task._id === taskId ? { ...task, assignedTo: userId ?? undefined } : task
         )
       );
-      socket.emit("notification",{addedEmail:userId})
+      socket.emit("notification",{addedEmail:[userId]})
       return { previousTasks };
     },
     onError: (_err, _variables, context) => {
@@ -103,9 +103,11 @@ export default function ProjectId() {
     };
 
     socket.on("receive-task", handleNewTask);
+    socket.on("receive-assigned",handleNewTask)
 
     return () => {
       socket.off("receive-task", handleNewTask);
+      socket.off("receive-assigned",handleNewTask)
     };
   }, [projectId, queryClient]);
 
@@ -238,6 +240,7 @@ export default function ProjectId() {
                               taskId: task._id,
                               userId: userId === "unassigned" ? " " : userId,
                             });
+                            socket.emit("task-assigned",userId)
                           }}
                         >
                           <SelectTrigger className="w-full h-8 text-[11px] font-medium rounded-lg border-slate-200 bg-white hover:bg-slate-50 shadow-none focus:ring-1 focus:ring-blue-500/20">

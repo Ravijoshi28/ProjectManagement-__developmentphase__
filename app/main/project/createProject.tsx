@@ -17,6 +17,7 @@ import { Plus } from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createProject } from "@/app/frontendLib/projectlib/projectapi"
+import { toast } from "sonner"
 
 
 export default function CreateProjectModal() {
@@ -35,8 +36,13 @@ const mutation=useMutation({
   }
 })
   const handleSubmit = async(e: React.FormEvent) => {
-    mutation.mutateAsync(formdata);
-    
+    try{
+       mutation.mutateAsync(formdata);
+        toast.success("Project created")
+    }catch(error){
+      toast.error("Project not created...")
+    }
+   
     
   }
 

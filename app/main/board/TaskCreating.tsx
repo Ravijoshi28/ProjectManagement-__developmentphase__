@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createTask } from "@/app/frontendLib/projectlib/projectapi";
 import { useProjectState } from "@/app/zustand/useProjectState";
 import { socket } from "@/app/lib/socket";
+import { toast } from "sonner";
 
 interface TaskFormData {
   title: string;
@@ -74,23 +75,24 @@ export function AddTask({
   }
 
   try {
-  console.log("1 before mutation");
-    console.log(socket.id)
+  
+    
   await createTaskMutation.mutateAsync({
     projectId,
     formData,
   });
 
-  console.log("2 after mutation");
+  
   socket.emit("join-project",projectId)
   socket.emit("task-created", {
     projectId,
     formData,
   });
 
-  console.log("3 after emit");
+toast.success("task created")
 } catch (err) {
   console.error("mutation error", err);
+  toast.error("cant create task");
 }finally {
     setOpen(false);
   }
