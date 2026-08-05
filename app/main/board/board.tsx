@@ -58,7 +58,6 @@ export default function BoardPage() {
     enabled: !!user?.id,
   });
 
-  console.log(tasks)
 
   useEffect(() => {
     return () => {

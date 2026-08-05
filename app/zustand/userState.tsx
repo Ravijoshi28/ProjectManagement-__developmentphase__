@@ -50,7 +50,6 @@ export const useUserState = create<ZustandState>()(
           loggedin: true,
           user: response.data.user,
         });
-        console.log(response.data.user.image);
       },
 
       signup: async (formData:SignupData) => {

@@ -46,7 +46,6 @@ staleTime:5*60*1000
 const queryClient=useQueryClient();
 useEffect(()=>{
     const refetch=async()=>{
-      console.log("rached");
       await queryClient.refetchQueries({
         queryKey:["Notifications"]
       })

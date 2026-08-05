@@ -30,7 +30,6 @@ nextWeek.setDate(now.getDate() + 7);
 }).toArray();
 
     if(taskList.length===0){
-        console.log("no task")
          return Response.json({message:[]},{status:200})
 
     }

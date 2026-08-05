@@ -91,7 +91,6 @@ export function AddTask({
 
 toast.success("task created")
 } catch (err) {
-  console.error("mutation error", err);
   toast.error("cant create task");
 }finally {
     setOpen(false);

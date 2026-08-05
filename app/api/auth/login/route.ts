@@ -41,7 +41,7 @@ export async function POST(req:Request){
       if (!token) {
       return NextResponse.json({ success: false, error: "Token generation failed" }, { status: 500 });
     }
-      console.log("loggedin")
+      
        const response = NextResponse.json(
       {
         success: true,

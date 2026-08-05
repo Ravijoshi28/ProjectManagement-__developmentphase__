@@ -46,7 +46,7 @@ export default function AppSidebar() {
       <SidebarHeader className="h-16 flex items-center px-6 border-b border-muted">
         <div className="flex items-center gap-2.5 font-semibold text-foreground tracking-tight">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Sparkles className="h-4 w-4" />
+            <img src="/main.png" alt=""/>
           </div>
           <span className="text-sm font-bold">Workspace App</span>
         </div>

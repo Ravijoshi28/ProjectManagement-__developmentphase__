@@ -51,7 +51,6 @@ interface Project {
 export default function ProjectId() {
   const queryClient = useQueryClient();
   const { projectId } = useProjectState();
-  console.log(projectId)
   // Retrieve project list cache safely
   const projects = queryClient.getQueryData<Project[]>(["projects"]) || [];
   
@@ -111,7 +110,6 @@ export default function ProjectId() {
     };
   }, [projectId, queryClient]);
 
-  console.log(tasks);
 
   if (!projectId) {
     return (

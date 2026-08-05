@@ -31,7 +31,6 @@ export default function Projects() {
   const { user } = useUserState();
   const { setProjectId } = useProjectState();
 
-  console.log(user)
   const {
     data: projects = [],
     isLoading,
@@ -42,7 +41,6 @@ export default function Projects() {
     staleTime: 5 * 60 * 1000,
   });
 
-  console.log(projects);
 
   
 

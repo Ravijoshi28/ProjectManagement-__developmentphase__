@@ -13,7 +13,6 @@ export default function AdminDashboard() {
     staleTime: 1000 * 60 * 5,
     retry: 2,
   })
-  console.log(data);
 
   if (isLoading) {
     return (

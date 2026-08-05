@@ -1,5 +1,5 @@
-import {DataAPIClient} from "@datastax/astra-db-ts"
 import "dotenv/config";
+import {DataAPIClient} from "@datastax/astra-db-ts"
 
 const Url=process.env.ASTRA_DB_API_ENDPOINT
 const token=process.env.ASTRA_DB_APPLICATION_TOKEN

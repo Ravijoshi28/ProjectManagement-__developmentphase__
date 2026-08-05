@@ -74,3 +74,17 @@ export interface Message {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface Gemini{
+    _id:string;
+    userId:string;
+    text:string;
+      type: "text" | "file" | "system";
+     file?: {
+    url: string;
+    mimeType: string;
+  } | null;
+  response:string;
+  createdAt?: Date;
+
+}

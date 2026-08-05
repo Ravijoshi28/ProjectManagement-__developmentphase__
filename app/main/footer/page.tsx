@@ -32,11 +32,11 @@ export default function Footer() {
   const faqs = [
     {
       q: "Is my personal dashboard data encrypted?",
-      a: "Yes, all data streams are encrypted both at rest and in transit using enterprise-grade TLS 1.3 protocols.",
+      a: "Nopes not right now but we are working on it",
     },
     {
       q: "Can I collaborate with external users?",
-      a: "Absolutely. Project owners can securely invite external members to specific boards using single-tenant access links.",
+      a: "Absolutely. Project owners can securely invite external members to specific boards by adding them to the project.",
     },
   ];
 
@@ -142,7 +142,7 @@ export default function Footer() {
           <div className="flex items-center gap-4 text-slate-400">
             <div className="flex items-center gap-1 select-none">
               <Globe size={12} />
-              <span>US-EAST Production Region</span>
+              <span>South-Asia Production Region</span>
             </div>
             <div className="flex items-center gap-1 select-none text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded">
               <ShieldCheck size={12} />

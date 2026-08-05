@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { user ,setData,logout} = useUserState();
-  console.log(user)
   const queryMutation=useMutation({
     mutationFn:changeProfile
   })
@@ -54,7 +53,6 @@ export default function ProfilePage() {
        })
        toast.success("Changes saved successfully");
     }catch(error){
-      console.log("error is ",error)
       toast.error("Changes failed try again later")
     }finally{
       setIsSaving(false);
@@ -79,7 +77,6 @@ export default function ProfilePage() {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  console.log(file.type)
   const filename = `avatar/${crypto.randomUUID()}-${file.name}`;
 
   const { error } = await supabase.storage
@@ -98,7 +95,6 @@ export default function ProfilePage() {
   ...prev,
   image: data.publicUrl,
 }));
-  console.log("image",data.publicUrl);
 };
 
   return (

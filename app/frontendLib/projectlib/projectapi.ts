@@ -19,7 +19,6 @@ interface createProjectProp{
 
 export const getProject=async()=>{
     const res=await axiosInstance.get("/project/getProject");
-    console.log(res.data.projects);
     return res.data.projects;
 }
 
@@ -47,7 +46,6 @@ export const AddMembers=async ({
     }[];
   };
 })=>{
-    console.log(projectId);
     const res=await axiosInstance.post(`/project/addMembers?project=${projectId}`,formdata);
 }
 

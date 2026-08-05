@@ -41,7 +41,6 @@ export default function ChatMessages({
     staleTime: 5 * 60 * 1000,
   });
 
-  console.table(messages)
 
 
 useEffect(() => {

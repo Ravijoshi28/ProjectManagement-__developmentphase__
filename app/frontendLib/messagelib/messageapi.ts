@@ -19,7 +19,6 @@ export const sendMessage = async ({
   message,
 }: SendMessageArgs) => {
   
-console.log(message)
 try{
   const res = await axiosInstance.post(
     `/messages/${projectId}/sendMessage`,
@@ -37,6 +36,5 @@ console.log(error)
 
 export const getMessages=async(projectId:string)=>{
     const res=await axiosInstance.get(`/messages/${projectId}/getMessage`);
-    console.log(res);
     return res.data.data;
 }
