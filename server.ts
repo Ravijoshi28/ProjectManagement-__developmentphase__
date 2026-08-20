@@ -5,8 +5,10 @@ const httpServer = createServer();
 
 export const io = new Server(httpServer, {
   cors: {
-    origin: 
-      "http://localhost:3000",
+    origin: [
+      "https://project-management-developmentphase.vercel.app/",
+            "http://localhost:3000",
+    ],
     credentials: true,
   },
 });
