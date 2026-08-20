@@ -10,7 +10,7 @@ import {
 import TaskOverview from "./TaskOverview";
 import { useUserState } from "@/app/zustand/userState";
 import { Send, Image as ImageIcon, Loader2, X, Sparkles, Bot, User } from "lucide-react";
-import { supabase } from "@/app/lib/supabase";
+import { getUploadErrorMessage, uploadGeminiImage } from "@/app/frontendLib/upload/upload";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AiAnalysis, FetchData } from "@/app/frontendLib/ai/ai";
@@ -53,29 +53,18 @@ export default function Dashboard() {
 
     try {
       setIsUploading(true);
-      const filename = `avatar/${crypto.randomUUID()}-${file.name}`;
-
-      const { error } = await supabase.storage
-        .from("avatar")
-        .upload(filename, file);
-
-      if (error) throw error;
-
-      const { data: publicData } = supabase.storage
-        .from("avatar")
-        .getPublicUrl(filename);
+      const uploaded = await uploadGeminiImage(file);
 
       setGeminiData((prev) => ({
         ...prev,
         file: {
-          url: publicData.publicUrl,
-          mimeType: file.type,
+          url: uploaded.url,
+          mimeType: uploaded.mimeType,
         },
       }));
       toast.success("Image uploaded successfully");
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err?.message || "Failed to upload image");
+    } catch (err: unknown) {
+      toast.error(getUploadErrorMessage(err, "Failed to upload image"));
     } finally {
       setIsUploading(false);
     }
@@ -89,7 +78,6 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ["AIData"] });
     },
     onError: (err) => {
-      console.error(err);
       toast.error("Failed to analyze image. Please try again.");
     },
   });
@@ -190,7 +178,7 @@ export default function Dashboard() {
         ) : (
           <div className="flex h-full flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-8 text-center backdrop-blur-sm">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-500 mb-4 shadow-inner">
-              <Sparkles className="h-8 w-8" />
+              <ImageIcon className="h-8 w-8" />
             </div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
               Ready to Analyze

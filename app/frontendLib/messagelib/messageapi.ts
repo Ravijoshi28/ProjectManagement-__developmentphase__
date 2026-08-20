@@ -26,7 +26,6 @@ try{
   );
    return res.data.messages;  
 }catch(error){
-console.log(error)
 }
 
 

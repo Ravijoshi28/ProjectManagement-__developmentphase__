@@ -61,7 +61,12 @@ export default function TaskOverview() {
         </div>
         
         <div className="space-y-3">
-          {activity.map((activity) => (
+          {activity.length==0 ?(
+            <p>create or join a project</p>
+          ):(
+
+           <div>
+              {activity.map((activity) => (
             <div 
               key={activity?._id} 
               className="flex items-start gap-3.5 p-3 rounded-xl border border-slate-100 bg-white shadow-sm hover:border-slate-200 transition-all duration-150"
@@ -88,6 +93,11 @@ export default function TaskOverview() {
               </div>
             </div>
           ))}
+           </div>
+              
+          )
+          }
+          
         </div>
       </div>
     </div>

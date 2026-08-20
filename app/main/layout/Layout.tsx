@@ -10,7 +10,7 @@ export default function Layout({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden bg-background">
+      <div className="flex h-dvh w-full overflow-hidden bg-transparent">
         {/* The Sidebar component lives on the left */}
         <AppSidebar />
 
@@ -20,7 +20,7 @@ export default function Layout({
           <Navbar />
           
           {/* Main scrollable page content container */}
-          <main className="flex-1 overflow-y-auto bg-background">
+          <main className="flex-1 overflow-y-auto bg-transparent">
             {children}
           </main>
         </div>

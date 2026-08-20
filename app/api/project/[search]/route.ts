@@ -29,7 +29,6 @@ export async function GET(req:NextRequest){
        
         return Response.json({message:userList},{status:200})
     } catch (error) {
-        console.log(error)
         return Response.json({message:"internal server error",error},{status:500})
     }
 }

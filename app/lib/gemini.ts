@@ -14,7 +14,6 @@ const buffer = Buffer.from(await res.arrayBuffer());
 
 const base64 = buffer.toString("base64");
 
-    console.log(text,url,mimeType)
   
   const interaction = await ai.interactions.create({
  model: "gemini-3.6-flash",
@@ -29,6 +28,5 @@ const base64 = buffer.toString("base64");
 });
 
 
-console.log(interaction.output_text);
 return interaction.output_text;
 }

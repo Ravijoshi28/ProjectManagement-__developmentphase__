@@ -91,7 +91,6 @@ await notifications.insertOne({
       { status: 200 }
     );
   } catch (error) {
-  console.error("ASSIGN TASK ERROR:", error);
 
   return Response.json(
     {

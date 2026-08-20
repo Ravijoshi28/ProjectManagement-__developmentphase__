@@ -38,7 +38,6 @@ export default function Login() {
       router.refresh();
       router.push("/main/dashboard");
     } catch (error) {
-      console.error(error);
       toast.error("Incorrect email or password.");
     } finally {
       setLoading(false);

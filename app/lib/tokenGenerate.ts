@@ -22,7 +22,6 @@ export const Generate = async (userId: string) => {
 
     
   } catch (error) {
-    console.log("Error in token generation");
 
     return null;
   }

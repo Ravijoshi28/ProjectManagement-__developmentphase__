@@ -60,3 +60,8 @@ export const createProject=async(formData:createProjectProp)=>{
     const res=await axiosInstance.post(`/project/createProject`,formData)
     return res.data.message;
 }
+
+export const deleteTask = async (taskId: string) => {
+  const res = await axiosInstance.delete(`/project/deleteTask/${taskId}`);
+  return res.data.message;
+};

@@ -138,7 +138,6 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error adding members to project:", error);
     return NextResponse.json(
       { message: "Server error while adding members", error: String(error) },
       { status: 500 }

@@ -1,6 +1,8 @@
 
 import { verifyToken } from "@/app/lib/verifyToken";
 import { messages } from "@/app/Models/Message";
+import { pMembers } from "@/app/Models/PMember";
+import { isPublicStorageUrl } from "@/app/lib/server/supabaseStorage";
 
 import { MessageSchema } from "@/app/schema/zod";
 import { cookies } from "next/headers";
@@ -29,6 +31,15 @@ export async function POST(req:NextRequest, { params }: { params: Promise<{ proj
         if(!projectId ||  (body.content.trim() && !body.file) === ""){
          return Response.json({message:"no project selected or message empty"},{status:400});
         }
+
+        const membership = await pMembers.findOne({ projectId, userId: id });
+        if (!membership) {
+            return Response.json({message:"You are not a member of this project"},{status:403});
+        }
+
+        if (body.file?.url && !isPublicStorageUrl(body.file.url, "messages")) {
+            return Response.json({message:"Invalid message attachment"},{status:400});
+        }
       
         
         await messages.insertOne({
@@ -46,7 +57,6 @@ export async function POST(req:NextRequest, { params }: { params: Promise<{ proj
         return Response.json({message:"Message sended"},{status:200})
 
     } catch (error) {
-        console.log(error)
         return Response.json({message:"something went wrong...cannot send message"},{status:500})
     }
 }

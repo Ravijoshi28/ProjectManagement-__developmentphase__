@@ -125,7 +125,6 @@ useEffect(()=>{
   }
 
   if (error) {
-    console.log(error)
     return (
       <div className=" z-50">
         <div className="p-3 rounded-xl border bg-red-50 text-red-600 shadow-sm text-sm">

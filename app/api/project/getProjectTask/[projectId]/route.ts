@@ -38,6 +38,6 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{projectId:st
 
         
     } catch (error) {
-       return Response.json({message:"error in creating Task...",error},{status:404})
+       return Response.json({message:"error in getting Task...",error},{status:404})
     }
 }

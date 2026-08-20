@@ -5,11 +5,12 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
+  Folder,
   FolderKanban,
   LayoutGrid,
   Shield,
   Users2,
-  Sparkles,
+  
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +52,7 @@ export default function ProjectLandingPage() {
       {/* Hero Section */}
       <main className="relative z-10 max-w-5xl mx-auto px-6 pt-20 pb-28 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-white shadow-sm mb-8 text-xs font-semibold text-slate-700">
-          <Sparkles className="h-3.5 w-3.5 text-slate-500" />
+          <Folder className="h-3.5 w-3.5 text-slate-500" />
           <span>Streamline your workspace with intelligent workflows</span>
         </div>
 

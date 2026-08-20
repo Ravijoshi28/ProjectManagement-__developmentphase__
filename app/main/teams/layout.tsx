@@ -1,4 +1,4 @@
-import { MessageCircle, Users, Sparkles } from "lucide-react";
+import { MessageCircle, Users, Smartphone } from "lucide-react";
 import Groups from "./groups";
 
 export default function TeamLayout({
@@ -7,10 +7,10 @@ export default function TeamLayout({
   children: React.ReactNode;
 }>) {
   return (
-   <div className="flex h-150 overflow-hidden bg-slate-50">
+   <div className="flex h-[calc(100dvh-4rem)] overflow-hidden bg-transparent">
       
       {/* Sidebar */}
-      <div className="w-[320px] border-r border-slate-200 bg-white shadow-sm">
+      <div className="hidden w-[280px] shrink-0 border-r border-border/70 bg-white/65 backdrop-blur-xl md:block xl:w-[320px]">
         <Groups />
       </div>
 
@@ -73,7 +73,7 @@ export default function TeamLayout({
 
             <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-center">
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm">
-                <Sparkles size={22} className="text-slate-700" />
+                <Smartphone size={22} className="text-slate-700" />
               </div>
 
               <h3 className="text-sm font-semibold text-slate-800">

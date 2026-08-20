@@ -3,6 +3,7 @@ import { projects } from "@/app/Models/Project";
 import { tasks } from "@/app/Models/Tasks";
 import { TaskSchema } from "@/app/schema/zod";
 import { io } from "@/server";
+import { error } from "console";
 
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:
         }
         
         
-      const task=  await tasks.insertOne({
+      const task = {
           _id: crypto.randomUUID(),
           projectId,
           title: body.title,
@@ -53,17 +54,42 @@ export async function POST(req: NextRequest,{params}:{params:Promise<{projectId:
           assignedTo: null,
           watchers: null,
           completedAt: body.dueDate
-      });
-        
+      };
+
+      await tasks.insertOne(task);
       
+      const ragTask = {
+  task_id: task._id,
+  project_id: task.projectId,
+
+  content: `
+Title: ${task.title}
+Description: ${task.description}
+Status: ${task.status}
+Priority: ${task.priority}
+Due Date: ${task.dueDate}
+  `.trim(),
+
+  status: task.status,
+  priority: task.priority,
+  due_date: task.dueDate,
+};
+        
+    const url = process.env.RAG_URL!;
+
+await fetch(`${url}/ingestion`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({tasks:[ragTask]}),
+});
 
         return Response.json(
             { message: "Task created successfully", task },
             { status: 201 }
         );
     } catch (error) {
-        console.error(error);
-
         return Response.json(
             { message: "Internal server error" },
             { status: 500 }

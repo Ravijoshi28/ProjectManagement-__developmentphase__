@@ -98,7 +98,6 @@ export default function AddMember({
     },
 
     onError: (error) => {
-      console.error(error);
     },
   });
 

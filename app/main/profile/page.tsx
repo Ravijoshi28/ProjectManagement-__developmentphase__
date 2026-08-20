@@ -1,5 +1,5 @@
 "use client";
-import { supabase } from "@/app/lib/supabase";
+import { getUploadErrorMessage, uploadProfileImage } from "@/app/frontendLib/upload/upload";
 import React, { useState } from "react";
 import { useUserState } from "@/app/zustand/userState";
 import { User, Mail, Shield, Building, LayoutGrid, BellRing, Check, Save, LogOutIcon } from "lucide-react";
@@ -77,24 +77,16 @@ export default function ProfilePage() {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  const filename = `avatar/${crypto.randomUUID()}-${file.name}`;
-
-  const { error } = await supabase.storage
-    .from("avatar")
-    .upload(filename, file);
-
-  if (error) {
-    console.log(error);
-    return;
-  }
-
-  const { data } = supabase.storage
-    .from("avatar")
-    .getPublicUrl(filename);
+  try {
+    const data = await uploadProfileImage(file);
     setFormData((prev) => ({
-  ...prev,
-  image: data.publicUrl,
-}));
+      ...prev,
+      image: data.url,
+    }));
+    toast.success("Profile image uploaded");
+  } catch (error: unknown) {
+    toast.error(getUploadErrorMessage(error, "Failed to upload profile image"));
+  }
 };
 
   return (

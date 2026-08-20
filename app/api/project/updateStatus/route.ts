@@ -37,7 +37,6 @@ export async  function PATCH(req:NextRequest){
             return Response.json({message:"Task updated successfully"},{status:200})
 
     } catch (error) {
-        console.log(error)
         return Response.json({message:"user is not authorised"},{status:401});
 
     }

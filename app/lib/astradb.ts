@@ -15,11 +15,9 @@ if (!Url) {
 }
 
 const client =new DataAPIClient(token);
-export const db=client.db(Url);
+export const db=client.db(Url,{
+  keyspace:"Project_Management"
+});
 
 
 
-(async () => {
-  const colls = await db.listCollections();
-  console.log('Connected to AstraDB:', colls);
-})();

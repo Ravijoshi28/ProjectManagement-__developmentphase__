@@ -127,7 +127,6 @@ export default function BoardPage() {
         );
         toast.success("Task updated successfully")
       } catch (err) {
-        console.error(err);
         toast.error("Error while updating task..")
         queryClient.invalidateQueries({ queryKey: ["UserTask"] });
       }

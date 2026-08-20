@@ -5,6 +5,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useQuery } from "@tanstack/react-query"
 import { Users, FolderKanban, CheckCircle2, MessageSquare, ArrowUpRight, TrendingUp } from "lucide-react"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
+import TaskDeleteButton from "../project/TaskDeleteButton"
+import ProjectDeleteButton from "./ProjectDeleteButton"
+
+interface AdminProject {
+  _id: string
+  name: string
+  about?: string
+  ownerId: string
+}
+
+interface AdminTask {
+  _id: string
+  projectId: string
+  title: string
+  status: string
+  priority: string
+  dueDate?: string
+}
 
 export default function AdminDashboard() {
   const { data, isLoading, isError, error } = useQuery({
@@ -39,6 +57,9 @@ export default function AdminDashboard() {
   }
 
   const taskInteractionData = data?.data?.taskInteractionData || []
+  const projects: AdminProject[] = data?.data?.projects || []
+  const tasks: AdminTask[] = data?.data?.tasks || []
+  const projectNames = new Map(projects.map((project) => [project._id, project.name]))
   
   // Calculate total messages from dynamic task data (fallback to 0)
   const totalMessages = taskInteractionData.reduce(
@@ -165,7 +186,7 @@ export default function AdminDashboard() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value} messages`, "Activity"]}
+                      formatter={(value) => [`${value ?? 0} messages`, "Activity"]}
                       contentStyle={{
                         backgroundColor: "rgba(15, 23, 42, 0.9)",
                         borderColor: "rgba(255, 255, 255, 0.1)",
@@ -225,6 +246,48 @@ export default function AdminDashboard() {
                 </div>
               )
             })}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader>
+            <CardTitle>All projects</CardTitle>
+            <CardDescription>View and manage every project in the workspace.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {projects.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No projects found.</p>}
+            {projects.map((project) => (
+              <div key={project._id} className="flex items-center justify-between gap-4 rounded-xl border p-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{project.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{project.about || `Owner: ${project.ownerId}`}</p>
+                </div>
+                <ProjectDeleteButton projectId={project._id} projectName={project.name} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader>
+            <CardTitle>All tasks</CardTitle>
+            <CardDescription>Tasks across every project. Admin deletion is enforced by the server.</CardDescription>
+          </CardHeader>
+          <CardContent className="max-h-[520px] space-y-3 overflow-y-auto">
+            {tasks.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No tasks found.</p>}
+            {tasks.map((task) => (
+              <div key={task._id} className="flex items-center justify-between gap-4 rounded-xl border p-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{task.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {projectNames.get(task.projectId) || "Unknown project"} · {task.status} · {task.priority}
+                  </p>
+                </div>
+                <TaskDeleteButton taskId={task._id} taskTitle={task.title} queryKey={["adminDashboardStats"]} />
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>

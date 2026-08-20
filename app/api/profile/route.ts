@@ -38,7 +38,6 @@ export async function PATCH(req:NextRequest){
         return Response.json({message:"Changes made"},{status:200})
     }
     catch(error){
-        console.log(error);
         Response.json({message:error},{status:400})
     }
 }

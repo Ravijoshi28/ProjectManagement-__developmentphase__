@@ -38,7 +38,6 @@ nextWeek.setDate(now.getDate() + 7);
  return Response.json({message:taskList},{status:200})
         
     } catch (error) {
-        console.log(error);
         NextResponse.json({message:error},{status:400})
     }
 }

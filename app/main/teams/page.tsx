@@ -1,10 +1,11 @@
-import { MessageCircle, Sparkles, Users } from "lucide-react";
+import { MessageCircle, Smartphone, Users } from "lucide-react";
+import MobileProjectSelector from "./mobile-project-selector";
 
 export default function TeamsHomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center p-8">
+    <div className="flex h-full items-center justify-center overflow-y-auto p-4 sm:p-8">
       
-      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white shadow-sm p-10">
+      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
         
         {/* Icon */}
         <div className="mb-6 flex justify-center">
@@ -20,10 +21,13 @@ export default function TeamsHomePage() {
           </h1>
 
           <p className="mt-3 text-slate-500 leading-relaxed">
-            Select a group from the sidebar to start chatting,
+            Select a project to start chatting,
             collaborate with your teammates, and manage discussions
             in real time.
           </p>
+          <div className="mt-5 flex justify-center md:hidden">
+            <MobileProjectSelector />
+          </div>
         </div>
 
         {/* Features */}
@@ -59,7 +63,7 @@ export default function TeamsHomePage() {
 
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm">
-              <Sparkles size={22} className="text-slate-700" />
+              <Smartphone size={22} className="text-slate-700" />
             </div>
 
             <h3 className="text-sm font-semibold text-slate-800">

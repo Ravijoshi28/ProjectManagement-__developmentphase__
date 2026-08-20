@@ -39,7 +39,6 @@ export async function GET(req:NextRequest){
 
       }
       catch(error){
-          console.error("ASSIGN TASK ERROR:", error);
 
   return Response.json(
     {

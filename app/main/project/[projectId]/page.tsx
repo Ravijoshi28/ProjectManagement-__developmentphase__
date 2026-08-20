@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useProjectState } from "@/app/zustand/useProjectState";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AssignTask, getProjectTask } from "@/app/frontendLib/projectlib/projectapi";
+import { AssignTask, getProject, getProjectTask } from "@/app/frontendLib/projectlib/projectapi";
+import { useUserState } from "@/app/zustand/userState";
 import { AddTask } from "../../board/TaskCreating";
-import { 
+import {
   Select, 
   SelectContent, 
   SelectGroup, 
@@ -15,16 +16,24 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { socket } from "@/app/lib/socket";
-import { Calendar, AlertCircle, Loader2 } from "lucide-react";
-
-interface User {
-  _id: string;
-  name: string;
-}
+import {
+  AlertCircle,
+  CalendarDays,
+  CheckCircle2,
+  Circle,
+  Clock3,
+  File,
+  FileIcon,
+  Loader2,
+  Plus,
+  Search,
+  
+} from "lucide-react";
+import TaskDeleteButton from "../TaskDeleteButton";
 
 interface Member {
   _id: string;
-  username:string
+  username: string;
 }
 
 interface Task {
@@ -35,7 +44,7 @@ interface Task {
   priority: string;
   dueDate: string;
   assignedTo?: string;
-  members:Member []
+  members: Member[];
 }
 
 interface Project {
@@ -45,27 +54,57 @@ interface Project {
   ownerId: string;
   image: string | null;
   members: Member[];
-  assignTo:string | null
+  assignTo: string | null;
 }
+
+const columnStyles: Record<
+  string,
+  { accent: string; badge: string; icon: typeof Circle }
+> = {
+  "To Do": {
+    accent: "bg-slate-400",
+    badge: "bg-slate-100 text-slate-600",
+    icon: Circle,
+  },
+  "In Progress": {
+    accent: "bg-blue-500",
+    badge: "bg-blue-50 text-blue-700",
+    icon: Clock3,
+  },
+  Review: {
+    accent: "bg-violet-500",
+    badge: "bg-violet-50 text-violet-700",
+    icon: Search,
+  },
+  Completed: {
+    accent: "bg-emerald-500",
+    badge: "bg-emerald-50 text-emerald-700",
+    icon: CheckCircle2,
+  },
+};
 
 export default function ProjectId() {
   const queryClient = useQueryClient();
   const { projectId } = useProjectState();
-  // Retrieve project list cache safely
-  const projects = queryClient.getQueryData<Project[]>(["projects"]) || [];
+  const { user } = useUserState();
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ["projects"],
+    queryFn: getProject,
+    staleTime: 5 * 60 * 1000,
+  });
   
   // Isolate the exact matching single project instance safely
   const currentProject = projects.find((p) => p._id === projectId);
 
   const assignTaskMutation = useMutation({
-    mutationFn: ({ taskId, userId }: { taskId: string; userId: string |null }) =>
+    mutationFn: ({ taskId, userId }: { taskId: string; userId: string | null }) =>
       AssignTask({
         taskId,
-        member: userId??null,
+        member: userId ?? null,
       }),
     onMutate: async ({ taskId, userId }) => {
       await queryClient.cancelQueries({ queryKey: ["tasks", projectId] });
-      await queryClient.refetchQueries({queryKey:["notifications"]})
+      await queryClient.refetchQueries({ queryKey: ["notifications"] });
       const previousTasks = queryClient.getQueryData<Task[]>(["tasks", projectId]);
 
       queryClient.setQueryData<Task[]>(["tasks", projectId], (old = []) =>
@@ -73,7 +112,7 @@ export default function ProjectId() {
           task._id === taskId ? { ...task, assignedTo: userId ?? undefined } : task
         )
       );
-      socket.emit("notification",{addedEmail:[userId]})
+      socket.emit("notification", { addedEmail: [userId] });
       return { previousTasks };
     },
     onError: (_err, _variables, context) => {
@@ -87,7 +126,10 @@ export default function ProjectId() {
     error,
   } = useQuery<Task[]>({
     queryKey: ["tasks", projectId],
-    queryFn: () => getProjectTask(projectId!),
+    queryFn:  async () => {
+  const projectTasks = await getProjectTask(projectId!);
+  return projectTasks ?? [];
+},
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000,
   });
@@ -102,47 +144,75 @@ export default function ProjectId() {
     };
 
     socket.on("receive-task", handleNewTask);
-    socket.on("receive-assigned",handleNewTask)
+    socket.on("receive-assigned", handleNewTask);
 
     return () => {
       socket.off("receive-task", handleNewTask);
-      socket.off("receive-assigned",handleNewTask)
+      socket.off("receive-assigned", handleNewTask);
     };
   }, [projectId, queryClient]);
 
 
   if (!projectId) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-        <AlertCircle className="h-8 w-8 text-slate-400 mb-2" />
-        <p className="text-sm font-medium text-slate-500">No project selected.</p>
+      <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
+        <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <AlertCircle className="h-7 w-7 text-slate-400" />
+        </div>
+        <p className="font-semibold text-slate-800">No project selected</p>
+        <p className="mt-1 max-w-sm text-sm text-slate-500">
+          Choose a project to view and manage its tasks.
+        </p>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-        <Loader2 className="h-6 w-6 text-blue-500 animate-spin mb-2" />
-        <p className="text-sm font-medium text-slate-500">Loading workspace tasks...</p>
+      <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
+        <div className="mb-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+        </div>
+        <p className="font-semibold text-slate-800">Loading project board</p>
+        <p className="mt-1 text-sm text-slate-500">Getting your workspace ready...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-        <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
-        <p className="text-sm font-medium text-red-500">Failed to fetch project tasks.</p>
-         <div className="mt-1">
-              <AddTask
-                
-                trigger={
-                  
-                  <p>   + Add Task</p>
-                }
-              />
-            </div>
+      <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
+        <div className="mb-4 rounded-2xl border border-red-100 bg-red-50 p-4">
+          <AlertCircle className="h-7 w-7 text-red-500" />
+        </div>
+        <p className="font-semibold text-slate-900">Unable to load tasks</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Something went wrong while fetching this project.
+        </p>
+      </div>
+    );
+  }
+
+  if (tasks.length === 0) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
+        <div className="mb-4 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-violet-50 p-4">
+        <File/>
+        </div>
+        <h2 className="text-lg font-bold text-slate-900">Start your project board</h2>
+        <p className="mt-1 max-w-sm text-sm leading-6 text-slate-500">
+          Create your first task and turn your project goals into clear, actionable work.
+        </p>
+        <div className="mt-5">
+          <AddTask
+            trigger={
+              <button className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                <Plus className="h-4 w-4" />
+                Create first task
+              </button>
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -155,28 +225,48 @@ export default function ProjectId() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 md:p-8 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 p-4 font-sans sm:p-6 md:p-8">
       {/* Header Context Metadata */}
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+      <div className="mb-7 flex flex-col gap-4 border-b border-slate-200/80 pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-blue-700">
+          <FileIcon className="h-3 w-3" />
+          Project workspace
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
           {currentProject?.name ? `${currentProject.name} Board` : "Project Board"}
         </h1>
-        <p className="text-xs md:text-sm text-slate-500 mt-1">
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
           {currentProject?.about || "Track and manage team assignments and project status."}
         </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-500 shadow-sm">
+          <span className="font-bold text-slate-900">{tasks.length}</span>{" "}
+          {tasks.length === 1 ? "task" : "tasks"} total
+        </div>
       </div>
 
       {/* Grid Container Workspace Area - Horizontal Scroll Responsive on Mobile */}
-      <div className="flex flex-row gap-4 md:gap-6 overflow-x-auto pb-6 items-start scrollbar-thin scrollbar-thumb-slate-200 snap-x snap-mandatory lg:grid lg:grid-cols-4 lg:snap-none">
-        {columns.map((column) => (
+      <div className="flex snap-x snap-mandatory flex-row items-start gap-4 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-slate-200 md:gap-5 lg:grid lg:grid-cols-4 lg:snap-none">
+        {columns.map((column) => {
+          const style = columnStyles[column.id];
+          const ColumnIcon = style.icon;
+
+          return (
           <div
             key={column.id}
-            className="w-[290px] sm:w-[320px] lg:w-full flex flex-col gap-3 md:gap-4 shrink-0 snap-center bg-slate-100/70 border border-slate-200/50 rounded-xl p-3 md:p-4 min-h-[550px]"
+            className="flex min-h-[560px] w-[290px] shrink-0 snap-center flex-col gap-3 rounded-2xl border border-slate-200/80 bg-slate-100/70 p-3 sm:w-[320px] md:gap-4 md:p-4 lg:w-full"
           >
             {/* Column Header Metadata */}
             <div className="flex items-center justify-between px-1">
-              <h2 className="font-semibold text-xs md:text-sm text-slate-800">{column.label}</h2>
-              <span className="rounded-md bg-white px-2 py-0.5 text-[11px] font-semibold border border-slate-200 text-slate-600 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${style.accent}`} />
+                <ColumnIcon className="h-4 w-4 text-slate-500" />
+                <h2 className="text-xs font-bold text-slate-800 md:text-sm">
+                  {column.label}
+                </h2>
+              </div>
+              <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${style.badge}`}>
                 {column.list.length}
               </span>
             </div>
@@ -192,7 +282,7 @@ export default function ProjectId() {
                 return (
                   <div
                     key={task._id}
-                    className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-150 flex flex-col justify-between gap-4"
+                    className="group flex flex-col justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
                   >
                     <div>
                       {/* Priority Tag Header Line */}
@@ -200,7 +290,7 @@ export default function ProjectId() {
                         <h3 className="font-semibold text-xs md:text-sm text-slate-900 leading-snug line-clamp-2">
                           {task.title}
                         </h3>
-                        <span
+                        <div className="flex items-start gap-1"><span
                           className={`text-[10px] font-semibold px-2 py-0.5 rounded-md tracking-wide shrink-0
                             ${
                               task.priority === "High" || task.priority === "Critical"
@@ -213,6 +303,13 @@ export default function ProjectId() {
                         >
                           {task.priority}
                         </span>
+                        {user?.id === currentProject?.ownerId && (
+                          <TaskDeleteButton
+                            taskId={task._id}
+                            taskTitle={task.title}
+                            queryKey={["tasks", projectId]}
+                          />
+                        )}</div>
                       </div>
 
                       <p className="text-[11px] md:text-xs text-slate-500 line-clamp-2 leading-relaxed">
@@ -223,9 +320,15 @@ export default function ProjectId() {
                     {/* Meta Controls Bottom Panel Footer */}
                     <div className="border-t border-slate-100 pt-3 flex flex-col gap-2.5">
                       <div className="flex items-center gap-1.5 text-slate-400">
-                        <Calendar size={13} />
+                        <CalendarDays size={13} />
                         <span className="text-[10px] md:text-[11px] font-medium text-slate-500">
-                          Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "No Date"}
+                          Due:{" "}
+                          {task.dueDate
+                            ? new Date(task.dueDate).toLocaleDateString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                              })
+                            : "No date"}
                         </span>
                       </div>
 
@@ -238,12 +341,12 @@ export default function ProjectId() {
                               taskId: task._id,
                               userId: userId === "unassigned" ? " " : userId,
                             });
-                            socket.emit("task-assigned",userId)
+                            socket.emit("task-assigned", userId);
                           }}
                         >
                           <SelectTrigger className="w-full h-8 text-[11px] font-medium rounded-lg border-slate-200 bg-white hover:bg-slate-50 shadow-none focus:ring-1 focus:ring-blue-500/20">
                             <SelectValue placeholder="Assign member">
-                              {task.assignedTo ? task.assignedTo : "Assign member"}
+                              {assignedMember?.username || "Assign member"}
                             </SelectValue>
                           </SelectTrigger>
 
@@ -288,7 +391,7 @@ export default function ProjectId() {
 
               {column.list.length === 0 && (
                 <div className="text-[11px] font-medium text-slate-400 text-center py-8 border border-dashed border-slate-300 rounded-xl bg-white/40">
-                  No active tasks
+                  No tasks in this stage
                 </div>
               )}
             </div>
@@ -298,13 +401,16 @@ export default function ProjectId() {
               <AddTask
                 status={column.id}
                 trigger={
-                  
-                  <p>   + Add Task</p>
+                  <>
+                    <Plus className="h-3.5 w-3.5" />
+                    Add task
+                  </>
                 }
               />
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

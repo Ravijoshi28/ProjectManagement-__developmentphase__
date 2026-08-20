@@ -12,12 +12,6 @@ export const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.onAny((event, ...args) => {
-    console.log("SERVER EVENT:", event, args);
-  });
-
   socket.on("join-project", (projectId) => {
     socket.join(projectId);
   });
@@ -35,26 +29,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("register-user", (userId) => {
-    console.log(`User registered ${userId}`);
     socket.join(userId);
   });
 
   socket.on("notification", ({ addedEmail }) => {
-      console.log(addedEmail);
-  console.log(typeof addedEmail);
-  console.log(Array.isArray(addedEmail));
     addedEmail.forEach((user: any) => {
       io.to(user.id).emit("notification");
     });
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
 });
 
 const PORT =  4000;
 
-httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`Socket server running on ${PORT}`);
-});
+httpServer.listen(PORT, "0.0.0.0");

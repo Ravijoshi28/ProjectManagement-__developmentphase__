@@ -1,16 +1,12 @@
-// import ConnectDb from "@/app/lib/mongodb";
 import { verifyToken } from "@/app/lib/verifyToken";
 import { pMembers } from "@/app/Models/PMember";
 import { projects } from "@/app/Models/Project";
 import { ProjectSchema } from "@/app/schema/zod";
-// import Project from "@/app/Models/Project";
-// import PMember from "@/app/Models/PMember";
 import { cookies } from "next/headers";
 
 
 export async function POST(req:Request,){
 
-    // await ConnectDb();
     const cookieExt=await cookies()
     const token=cookieExt.get("token")?.value;
 
@@ -57,14 +53,12 @@ export async function POST(req:Request,){
         
       }
       catch(error){
-        console.log(error)
          return Response.json({message:"Project creation failed please try again",error},{status:500});
       }
         // await NewMember.save()
           return Response.json({message:"Project successfully created"},{status:201});
    }
    catch(error){
-            console.log(error)
            return Response.json({message:"Project creation failed please try again",error},{status:500});
    }
 

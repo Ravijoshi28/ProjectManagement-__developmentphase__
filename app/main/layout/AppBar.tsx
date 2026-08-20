@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import { ClipboardList, FolderKanban, LayoutDashboard, Users, Sparkles } from "lucide-react"
+import { ClipboardList, FolderKanban, LayoutDashboard, Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
@@ -41,19 +41,19 @@ export default function AppSidebar() {
   ]
 
   return (
-    <Sidebar className="border-r border-muted bg-card">
+    <Sidebar className="border-r border-sidebar-border bg-sidebar/90 backdrop-blur-xl">
       {/* Sidebar Top Branding Area */}
-      <SidebarHeader className="h-16 flex items-center px-6 border-b border-muted">
+      <SidebarHeader className="flex h-16 items-center border-b border-sidebar-border px-5">
         <div className="flex items-center gap-2.5 font-semibold text-foreground tracking-tight">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <img src="/main.png" alt=""/>
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-primary p-1.5 text-primary-foreground shadow-[0_8px_20px_rgba(79,70,229,0.25)]">
+            <img src="/main.png" alt="Workspace logo" className="h-full w-full object-contain"/>
           </div>
-          <span className="text-sm font-bold">Workspace App</span>
+          <div><span className="block text-sm font-bold">TaskFlow</span><span className="block text-[10px] font-medium text-muted-foreground">Team workspace</span></div>
         </div>
       </SidebarHeader>
 
       {/* Main Navigation links */}
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-3 py-5">
         <SidebarGroup className="p-0">
           <SidebarMenu className="gap-1">
             {content.map((item, idx) => {
@@ -66,9 +66,9 @@ export default function AppSidebar() {
                   <SidebarMenuButton
                   
                     isActive={isActive}
-                    className={`w-full transition-all duration-200 rounded-xl px-4 py-5.5 text-sm font-medium group
+                    className={`group w-full rounded-xl px-4 py-5.5 text-sm font-medium transition-all duration-200
                       ${isActive 
-                        ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground" 
+                        ? "bg-primary text-primary-foreground shadow-[0_8px_22px_rgba(79,70,229,0.22)] hover:bg-primary hover:text-primary-foreground" 
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                   >
@@ -87,8 +87,8 @@ export default function AppSidebar() {
       </SidebarContent>
 
       {/* Bottom Footer Section placeholder */}
-      <SidebarFooter className="p-4 border-t border-muted bg-muted/20">
-        <div className="flex items-center gap-3 px-2 py-1.5 rounded-lg">
+      <SidebarFooter className="border-t border-sidebar-border bg-muted/20 p-4">
+        <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-white/60 px-3 py-2.5">
           <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-xs font-medium text-muted-foreground">Systems Operational</span>
         </div>

@@ -70,7 +70,6 @@ export function AddTask({
   
 
   if (!projectId) {
-    console.log("No project id");
     return;
   }
 

@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
 
   const user = verifyToken(token);
   const id=user.id;
-  console.log("working");
   if (!user) {
     return Response.json(
       { message: "User is not authorized" },
@@ -34,7 +33,6 @@ export async function GET(req: NextRequest) {
         }
          return Response.json({message:taskList},{status:200})
   } catch (error) {
-    console.error("GET ASSIGNED TASKS ERROR:", error);
 
     return Response.json(
       {

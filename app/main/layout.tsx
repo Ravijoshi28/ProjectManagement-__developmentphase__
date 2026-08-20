@@ -12,14 +12,14 @@ export default async function MainLayout({
 }) {
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-background overflow-hidden">
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-transparent">
       {/* Wrap both the layout UI and the children together. 
         Now the sidebar, navbar, and page content all sit inside the SidebarProvider safely!
       */}
       <Layout>
-        <div>
+        <div className="min-w-0">
           {/* Main content viewport */}
-          <div >
+          <div className="min-h-[calc(100dvh-4rem)]">
             <Providers>
             {children}
             </Providers>

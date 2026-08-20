@@ -1,6 +1,4 @@
-// import User from "@/app/Models/User";
 import { cookies } from "next/headers";
-// import ConnectDb from "@/app/lib/mongodb";
 import { Generate } from "@/app/lib/tokenGenerate";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
@@ -9,8 +7,6 @@ import { LoginSchema } from "@/app/schema/zod";
 const PEPPER=process.env.PASSWORD_PEPPER
 
 export async function POST(req:Request){
-
-    //  await ConnectDb();
 
         const body=LoginSchema.parse(await req.json());
       

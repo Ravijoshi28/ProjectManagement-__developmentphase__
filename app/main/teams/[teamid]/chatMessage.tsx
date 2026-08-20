@@ -74,9 +74,9 @@ useEffect(() => {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-5 py-2">
       {messages.length === 0 && (
-        <div className="text-center text-sm text-muted-foreground mt-10">
+        <div className="mx-auto mt-16 rounded-2xl border border-border/60 bg-white/70 px-6 py-5 text-center text-sm text-muted-foreground shadow-sm">
           No messages yet. Start the conversation 👋
         </div>
       )}
@@ -114,11 +114,11 @@ useEffect(() => {
       {/* Message Bubble */}
       <div
   className={`
-    px-4 py-2 text-sm shadow-sm break-words max-w-[350px]
+    max-w-[min(78vw,420px)] break-words px-4 py-2.5 text-sm shadow-sm
     ${
       isMe
-        ? "bg-blue-600 text-white rounded-2xl rounded-br-md"
-        : "bg-slate-100 text-slate-900 rounded-2xl rounded-bl-md"
+        ? "rounded-2xl rounded-br-md bg-primary text-primary-foreground shadow-primary/10"
+        : "rounded-2xl rounded-bl-md border border-border/60 bg-white text-foreground"
     }
   `}
 >
@@ -132,7 +132,7 @@ useEffect(() => {
         <img
           src={msg.file.url}
           alt="attachment"
-          className="max-w-64 rounded-lg object-cover"
+          className="mt-2 max-w-64 rounded-xl object-cover"
         />
       ) : msg.file.mimeType === "application/pdf" ? (
         <a

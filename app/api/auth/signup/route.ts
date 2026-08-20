@@ -1,6 +1,3 @@
-// import User from "@/app/Models/User";
-// import ConnectDb from "@/app/lib/mongodb";
-// import { Generate } from "@/app/lib/tokenGenerate";
 import { users } from "@/app/Models/User";
 import { UserSchema } from "@/app/schema/zod";
 import bcrypt from "bcryptjs";
@@ -9,8 +6,6 @@ import bcrypt from "bcryptjs";
 const PEPPER=process.env.PASSWORD_PEPPER
 
 export async function POST(req: Request) {
-  // await ConnectDb();
-
   try {
     const body = UserSchema.parse(await req.json());
 

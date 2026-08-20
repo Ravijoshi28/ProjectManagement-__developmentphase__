@@ -3,6 +3,7 @@ import { verifyToken } from "@/app/lib/verifyToken";
 import { geminiModel } from "@/app/Models/Gemini";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { isPublicStorageUrl } from "@/app/lib/server/supabaseStorage";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,10 @@ export async function POST(req: NextRequest) {
 
     const { text,file } = await req.json();
 
-    console.log(text,file.url,file.mimeType);
+    if (file?.url && !isPublicStorageUrl(file.url, "Gemini")) {
+      return NextResponse.json({ error: "Invalid image URL." }, { status: 400 });
+    }
+
      
     if (!file.text && !file.url) {
       return NextResponse.json(
@@ -39,7 +43,6 @@ export async function POST(req: NextRequest) {
     
 
     const res = await gemini(text, file.url,file.mimeType);
-    console.log(res);
     if (!res) {
   return NextResponse.json(
     { message: "Failed to generate response." },
@@ -69,7 +72,6 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("POST /api/... error:", error);
 
     return NextResponse.json(
       {

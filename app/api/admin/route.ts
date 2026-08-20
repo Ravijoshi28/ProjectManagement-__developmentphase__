@@ -32,7 +32,8 @@ export async function GET() {
     const usersCollection = db.collection("users");
     const currentUser = await usersCollection.findOne({ _id: decodedUser.id });
 
-    if (currentUser?.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    const adminEmail = process.env.ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    if (!adminEmail || currentUser?.email !== adminEmail) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
@@ -50,7 +51,10 @@ export async function GET() {
     ]);
 
     // 5. Count Tasks directly by Status
-    const tasks = await tasksCollection.find({}).toArray();
+    const [tasks, projectList] = await Promise.all([
+      tasksCollection.find({}).toArray(),
+      projectsCollection.find({}).toArray(),
+    ]);
     const countsByStatus: Record<string, number> = {};
 
     tasks.forEach((task) => {
@@ -81,9 +85,10 @@ export async function GET() {
         totalMessages: totalMessagesCount,
       },
       taskInteractionData: formattedTaskData,
+      projects: projectList,
+      tasks,
     });
   } catch (error) {
-    console.error("AstraDB Admin Dashboard API Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

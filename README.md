@@ -1,6 +1,6 @@
 # Project Management Platform
 
-A modern full-stack project management application built with Next.js, MongoDB, React Query, Socket.IO, and TypeScript. The platform helps teams collaborate efficiently through project tracking, task management, real-time communication, and notifications.
+A modern full-stack project management application built with Next.js, Astra DB, React Query, Socket.IO, and TypeScript. The platform helps teams collaborate efficiently through project tracking, task management, real-time communication, and notifications.
 
 ## 🚀 Features
 
@@ -56,7 +56,7 @@ A modern full-stack project management application built with Next.js, MongoDB, 
 
 ### Notification System
 
-* Persistent notifications stored in MongoDB
+* Persistent notifications stored in Astra DB
 * Real-time notification delivery
 * Notification history
 * Read/Unread tracking
@@ -100,8 +100,8 @@ A modern full-stack project management application built with Next.js, MongoDB, 
 ### Backend
 
 * Next.js API Routes
-* MongoDB
-* Mongoose
+* DataStax Astra DB
+* Astra DB TypeScript client
 * JWT Authentication
 * Socket.IO
 
@@ -127,7 +127,7 @@ app/
 ```text
 Action Performed
         ↓
-Stored in MongoDB
+Stored in Astra DB
         ↓
 Notification Created
         ↓
@@ -161,7 +161,7 @@ Client
   ↓
 API Route
   ↓
-MongoDB Update
+Astra DB Update
   ↓
 Socket.IO Event
   ↓
@@ -190,7 +190,7 @@ Connected Clients
 
 ## 👨‍💻 Author
 
-Built by Ravi Joshi using Next.js, MongoDB, Socket.IO, React Query, TypeScript, and Tailwind CSS.
+Built by Ravi Joshi using Next.js, Astra DB, Socket.IO, React Query, TypeScript, and Tailwind CSS.
 
 
 ## Changes that I will do in future versions 
