@@ -1,17 +1,18 @@
 "use client";
-
 import { getNotification } from "@/app/frontendLib/notifications/notifications";
-import { socket } from "@/app/lib/socket";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  X,
+  Bell,
+  BellOff,
   CheckCircle2,
   AlertCircle,
   Info,
   TriangleAlert,
-  BellOff,
 } from "lucide-react";
-import { useEffect } from "react";
+import { PageHeader } from "@/components/workspace/page-header";
+import { EmptyState } from "@/components/workspace/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
 interface NotificationItem {
   _id: string;
@@ -21,176 +22,121 @@ interface NotificationItem {
   title: string;
   message: string;
   type: string;
-  projectId: string|null;
-  taskId:string|null
+  projectId: string | null;
+  taskId: string | null;
   createdAt?: string;
 }
 
 export default function Notification() {
- const {
-
-data: notifications = [],
-
-isLoading,
-
-error,
-
-} = useQuery<NotificationItem[], Error>({
-
-queryKey: ["Notifications"],
-
-queryFn: getNotification,
-staleTime:5*60*1000
-
-});
-const queryClient=useQueryClient();
-useEffect(()=>{
-    const refetch=async()=>{
-      await queryClient.refetchQueries({
-        queryKey:["Notifications"]
-      })
-    }
-
-     socket.on("notification",refetch);
-
-     return ()=>{
-      socket.off("notification",refetch);
-     }
-},[])
-
-  const getAlertStyles = (type?: string) => {
-    switch (type) {
-      case "success":
-        return {
-          bg: "bg-emerald-50 border-emerald-200/80",
-          text: "text-emerald-800",
-          desc: "text-emerald-600",
-          icon: (
-            <CheckCircle2
-              size={16}
-              className="text-emerald-500 shrink-0"
-            />
-          ),
-        };
-
-      case "error":
-        return {
-          bg: "bg-red-50 border-red-200/80",
-          text: "text-red-800",
-          desc: "text-red-600",
-          icon: (
-            <AlertCircle
-              size={16}
-              className="text-red-500 shrink-0"
-            />
-          ),
-        };
-
-      case "warning":
-        return {
-          bg: "bg-amber-50 border-amber-200/80",
-          text: "text-amber-800",
-          desc: "text-amber-600",
-          icon: (
-            <TriangleAlert
-              size={16}
-              className="text-amber-500 shrink-0"
-            />
-          ),
-        };
-
-      default:
-        return {
-          bg: "bg-white border-slate-200",
-          text: "text-slate-800",
-          desc: "text-slate-500",
-          icon: (
-            <Info
-              size={16}
-              className="text-blue-500 shrink-0"
-            />
-          ),
-        };
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="fixed top-20 left-30 z-50 sm:top-20 sm:left-10">
-        <div className="p-3 rounded-xl border bg-white shadow-sm text-sm">
-          Loading notifications...
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className=" z-50">
-        <div className="p-3 rounded-xl border bg-red-50 text-red-600 shadow-sm text-sm">
-          Failed to load notifications
-        </div>
-      </div>
-    );
-  }
-
-  if (notifications.length === 0) {
-    return (
-      <div className="fixed top-13 left-5 z-1 w-full max-w-sm p-4 md:left-50">
-        <div className="flex items-center gap-3 p-3 rounded-xl border bg-white shadow-sm">
-          <BellOff
-            size={16}
-            className="text-slate-400"
-          />
-          <p className="text-sm text-slate-500">
-            No new notifications
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+  const {
+    data: notifications = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<NotificationItem[], Error>({
+    queryKey: ["Notifications"],
+    queryFn: getNotification,
+    staleTime: 5 * 60 * 1000,
+  });
   return (
-<div className=" flex flex-col gap-3 w-full max-w-sm sm:max-w-md p-4">      {notifications.map((notification) => {
-        const styles = getAlertStyles(notification.type);
-
-        return (
+    <div className="page-shell">
+      <PageHeader
+        title="Notifications"
+        description="Project updates, team invitations, and everything that needs your attention."
+        action={
+          <span className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+            {notifications.length} updates
+          </span>
+        }
+      />
+      <div className="max-w-4xl">
+        {isLoading ? (
           <div
-            key={notification._id}
-            className={`flex items-start gap-3 p-4 rounded-xl border shadow-md ${styles.bg}`}
+            className="space-y-3"
+            role="status"
+            aria-label="Loading notifications"
           >
-            {styles.icon}
-
-            <div className="flex-1 min-w-0">
-              <p
-                className={`text-sm font-semibold ${styles.text}`}
-              >
-                {notification.title}
-              </p>
-
-              <p
-                className={`text-xs mt-1 ${styles.desc}`}
-              >
-                {notification.message}
-              </p>
-
-              <p className="text-[10px] text-slate-400 mt-2">
-                From: {notification.sendername}
-              </p>
-            </div>
-
-            <button
-              className="p-1 rounded hover:bg-slate-100"
-              type="button"
-            >
-              <X
-                size={14}
-                className="text-slate-400"
-              />
-            </button>
+            {[0, 1, 2].map((n) => (
+              <Skeleton key={n} className="h-28 w-full rounded-2xl" />
+            ))}
           </div>
-        );
-      })}
+        ) : error ? (
+          <EmptyState
+            icon={Bell}
+            title="Could not load notifications"
+            description="Try again to get the latest updates."
+            action={
+              <button
+                onClick={() => refetch()}
+                className="text-sm font-medium text-primary"
+              >
+                Try again
+              </button>
+            }
+          />
+        ) : notifications.length === 0 ? (
+          <EmptyState
+            icon={BellOff}
+            title="You're all caught up"
+            description="When something changes in your projects, your updates will appear here."
+          />
+        ) : (
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+            {notifications.map((notification) => {
+              const Icon =
+                notification.type === "success"
+                  ? CheckCircle2
+                  : notification.type === "error"
+                    ? AlertCircle
+                    : notification.type === "warning"
+                      ? TriangleAlert
+                      : Info;
+              const color =
+                notification.type === "error"
+                  ? "text-destructive bg-destructive/10"
+                  : notification.type === "success"
+                    ? "text-emerald-700 bg-emerald-500/10 dark:text-emerald-400"
+                    : "text-primary bg-primary/10";
+              return (
+                <li key={notification._id} className="flex gap-4 p-5 sm:p-6">
+                  <span
+                    className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${color}`}
+                  >
+                    <Icon size={19} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="break-words text-sm font-semibold">
+                      {notification.title}
+                    </h2>
+                    <p className="mt-1 break-words text-sm leading-6 text-muted-foreground">
+                      {notification.message}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                      <span>From {notification.sendername || "Your team"}</span>
+                      {notification.createdAt && (
+                        <time dateTime={notification.createdAt}>
+                          {new Date(notification.createdAt).toLocaleDateString(
+                            undefined,
+                            { month: "short", day: "numeric" },
+                          )}
+                        </time>
+                      )}
+                      {notification.projectId && (
+                        <Link
+                          href={`/main/project/${notification.projectId}`}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          View project &rarr;
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

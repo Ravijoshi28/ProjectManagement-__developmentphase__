@@ -4,11 +4,10 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "./provider";
 import SocketProvider from "./SocketProvider";
-import {Toaster} from "sonner"
-
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
-  variable: "--font-sans",
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
@@ -30,18 +29,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans")}
+      data-scroll-behavior="smooth"
+      className={cn(
+        "h-full",
+        "antialiased",
+        geistSans.variable,
+        geistMono.variable,
+        "font-sans",
+      )}
     >
       <body className="min-h-full">
-          <div className="min-h-screen">
-            <Providers>
-              <SocketProvider/>
-          {children}
-          <Toaster/>
-            </Providers>
-          </div>
-
-          </body>
+        <div className="min-h-screen">
+          <Providers>
+            <SocketProvider />
+            {children}
+            <Toaster />
+          </Providers>
+        </div>
+      </body>
     </html>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
-
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Flag, Calendar, ListTodo } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,240 +13,233 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTask } from "@/app/frontendLib/projectlib/projectapi";
-import { useProjectState } from "@/app/zustand/useProjectState";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  createTask,
+  getProject,
+} from "@/app/frontendLib/projectlib/projectapi";
 import { socket } from "@/app/lib/socket";
 import { toast } from "sonner";
-
-interface TaskFormData {
-  title: string;
-  description: string;
-  priority: string;
-  dueDate: string;
-  status: string;
-}
 
 interface AddTaskProps {
   trigger: React.ReactNode;
   title?: string;
   description?: string;
   status?: string;
+  projectId?: string;
 }
-
 export function AddTask({
   trigger,
   title = "",
   description = "",
-  status = "Todo",
+  status = "To Do",
+  projectId,
 }: AddTaskProps) {
-  const today = new Date().toISOString().split("T")[0];
-  const {projectId}=useProjectState();
-
+  const id = React.useId();
   const [open, setOpen] = React.useState(false);
-
-  const [formData, setFormData] = React.useState<TaskFormData>({
+  const [selectedProject, setSelectedProject] = React.useState("");
+  const initialForm = {
     title,
     description,
-    priority: "High Priority",
-    dueDate: today,
-    status:"To Do",
+    priority: "Medium Priority",
+    dueDate: "",
+    status,
+  };
+  const [formData, setFormData] = React.useState(initialForm);
+  const client = useQueryClient();
+  const {
+    data: projects = [],
+    isLoading,
+    isError,
+  } = useQuery<{ _id: string; name: string }[]>({
+    queryKey: ["projects"],
+    queryFn: getProject,
+    enabled: open && !projectId,
+    staleTime: 5 * 60 * 1000,
   });
-
-  const queryClient = useQueryClient();
-  const createTaskMutation = useMutation({
-  mutationFn: createTask,
-  onSuccess: () => {
-    queryClient.invalidateQueries({
-      queryKey: ["tasks",projectId],
-    });
-  },
-});
-
-  const handleSubmit = async (
-  e: React.FormEvent<HTMLFormElement>
-) => {
-  e.preventDefault();
-
-  
-
-  if (!projectId) {
-    return;
+  const activeProject = projectId || selectedProject;
+  const mutation = useMutation({ mutationFn: createTask });
+  const control =
+    "h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!activeProject || mutation.isPending || !formData.title.trim()) return;
+    try {
+      await mutation.mutateAsync({
+        projectId: activeProject,
+        formData: { ...formData, title: formData.title.trim() },
+      });
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["tasks", activeProject] }),
+        client.invalidateQueries({ queryKey: ["UserTask"] }),
+        client.invalidateQueries({ queryKey: ["RecentActivity"] }),
+      ]);
+      socket.emit("task-created", { projectId: activeProject, formData });
+      toast.success("Task created");
+      setOpen(false);
+      setFormData(initialForm);
+    } catch {
+      toast.error(
+        "Could not create your task. Your details are still here to retry.",
+      );
+    }
   }
-
-  try {
-  
-    
-  await createTaskMutation.mutateAsync({
-    projectId,
-    formData,
-  });
-
-  
-  socket.emit("join-project",projectId)
-  socket.emit("task-created", {
-    projectId,
-    formData,
-  });
-
-toast.success("task created")
-} catch (err) {
-  toast.error("cant create task");
-}finally {
-    setOpen(false);
-  }
-};
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger >
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!mutation.isPending) setOpen(next);
+      }}
+    >
+      <DialogTrigger className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary">
         {trigger}
       </DialogTrigger>
-
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {title ? "Edit Task" : "Create Task"}
+          <DialogTitle className="text-xl font-semibold">
+            Create task
           </DialogTitle>
-
           <DialogDescription>
-            Fill in the details below and save your task.
+            Give your next step a name, a priority, and a place to live.
           </DialogDescription>
         </DialogHeader>
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
-          {/* Title */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Title
-            </label>
-
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  title: e.target.value,
-                })
-              }
-              placeholder="Task title"
-              className="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Description
-            </label>
-
-            <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  description: e.target.value,
-                })
-              }
-              placeholder="Task description"
-              rows={4}
-              className="w-full rounded-lg border px-3 py-2 outline-none resize-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          {/* Priority + Due Date */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  {/* Priority */}
-  <div className="space-y-2">
-    <label className="text-sm font-medium">
-      Priority
-    </label>
-
-    <div className="relative">
-     
-
-      <select
-        value={formData.priority}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            priority: e.target.value,
-          })
-        }
-        className="h-10 w-full appearance-none rounded-lg border border-input bg-background pl-1 pr-5 text-sm outline-none focus:ring-2 focus:ring-ring"
-      >
-        <option value="High Priority">High Priority</option>
-        <option value="Medium Priority">Medium Priority</option>
-        <option value="Low Priority">Low Priority</option>
-      </select>
-
-      <ChevronDown
-        size={16}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-      />
-    </div>
-  </div>
-
-  {/* Due Date */}
-  <div className="space-y-2">
-    <label className="text-sm font-medium">
-      Due Date
-    </label>
-
-    <input
-      type="date"
-      min={today}
-      value={formData.dueDate}
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          dueDate: e.target.value,
-        })
-      }
-      className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-    />
-  </div>
-</div>
-
-{/* Status */}
-<div className="space-y-2">
-  <label className="text-sm font-medium">
-    Status
-  </label>
-
-  <div className="relative">
-   
-
-    <select
-      value={formData.status}
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          status: e.target.value,
-        })
-      }
-      className="h-10 w-full appearance-none rounded-lg border border-input bg-background pl-10 pr-10 text-sm outline-none focus:ring-2 focus:ring-ring"
-    >
-      <option value="To Do">To Do</option>
-      <option value="In Progress">In Progress</option>
-      <option value="Review">Review</option>
-      <option value="Completed">Completed</option>
-    </select>
-
-    <ChevronDown
-      size={16}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-    />
-  </div>
-</div>
-             
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <fieldset
+            disabled={mutation.isPending}
+            className="space-y-5 disabled:opacity-70"
+          >
+            {!projectId && (
+              <div className="space-y-2">
+                <Label htmlFor={`${id}-project`}>Project</Label>
+                <select
+                  id={`${id}-project`}
+                  className={control}
+                  value={selectedProject}
+                  onChange={(event) => setSelectedProject(event.target.value)}
+                  required
+                >
+                  <option value="">
+                    {isLoading ? "Loading projects..." : "Choose a project"}
+                  </option>
+                  {projects.map((project) => (
+                    <option key={project._id} value={project._id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+                {isError && (
+                  <p className="text-xs text-destructive">
+                    Projects could not be loaded. Close this dialog and try
+                    again.
+                  </p>
+                )}
+                {!isLoading && !isError && projects.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Create or join a project before adding tasks.
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor={`${id}-title`}>Task name</Label>
+              <Input
+                id={`${id}-title`}
+                value={formData.title}
+                onChange={(event) =>
+                  setFormData({ ...formData, title: event.target.value })
+                }
+                placeholder="What needs to get done?"
+                className="h-11 rounded-xl"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`${id}-description`}>
+                Description{" "}
+                <span className="font-normal text-muted-foreground">
+                  (optional)
+                </span>
+              </Label>
+              <textarea
+                id={`${id}-description`}
+                value={formData.description}
+                onChange={(event) =>
+                  setFormData({ ...formData, description: event.target.value })
+                }
+                placeholder="Add context, details, or a definition of done..."
+                rows={3}
+                className={`${control} h-auto resize-y py-3`}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor={`${id}-priority`}>Priority</Label>
+                <select
+                  id={`${id}-priority`}
+                  value={formData.priority}
+                  onChange={(event) =>
+                    setFormData({ ...formData, priority: event.target.value })
+                  }
+                  className={control}
+                >
+                  {["Low Priority", "Medium Priority", "High Priority"].map(
+                    (value) => (
+                      <option key={value}>{value}</option>
+                    ),
+                  )}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`${id}-due`}>Due date</Label>
+                <input
+                  id={`${id}-due`}
+                  type="date"
+                  required
+                  value={formData.dueDate}
+                  onChange={(event) =>
+                    setFormData({ ...formData, dueDate: event.target.value })
+                  }
+                  className={control}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`${id}-status`}>Status</Label>
+              <select
+                id={`${id}-status`}
+                value={formData.status}
+                onChange={(event) =>
+                  setFormData({ ...formData, status: event.target.value })
+                }
+                className={control}
+              >
+                {["To Do", "In Progress", "Review", "Completed"].map(
+                  (value) => (
+                    <option key={value}>{value}</option>
+                  ),
+                )}
+              </select>
+            </div>
+          </fieldset>
           <DialogFooter>
-            <Button type="submit">
-              Save Changes
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={mutation.isPending}
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                mutation.isPending || !activeProject || !formData.title.trim()
+              }
+            >
+              {mutation.isPending && (
+                <Loader2 className="size-4 animate-spin" />
+              )}
+              {mutation.isPending ? "Creating..." : "Create task"}
             </Button>
           </DialogFooter>
         </form>

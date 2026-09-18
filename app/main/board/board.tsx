@@ -2,15 +2,14 @@
 
 import React, { useEffect, useRef } from "react";
 import {
-  MoreHorizontal,
   CheckCircle2,
   Clock,
   Eye,
   ListTodo,
   Calendar,
   Plus,
-  Settings,
 } from "lucide-react";
+import { PageHeader } from "@/components/workspace/page-header";
 import { AddTask } from "./TaskCreating";
 import {
   DragDropContext,
@@ -18,12 +17,11 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { UserTasks, updateTaskStatus } from "@/app/frontendLib/userlib/userapis";
+  UserTasks,
+  updateTaskStatus,
+} from "@/app/frontendLib/userlib/userapis";
 import { useUserState } from "@/app/zustand/userState";
 import { toast } from "sonner";
 
@@ -51,13 +49,16 @@ export default function BoardPage() {
     },
   });
 
-  const { data: tasks = [], isLoading, error } = useQuery<Tasks[]>({
+  const {
+    data: tasks = [],
+    isLoading,
+    error,
+  } = useQuery<Tasks[]>({
     queryKey: ["UserTask"],
     queryFn: () => UserTasks(user?.id ?? null),
     staleTime: 5 * 60 * 1000,
     enabled: !!user?.id,
   });
-
 
   useEffect(() => {
     return () => {
@@ -69,29 +70,29 @@ export default function BoardPage() {
     {
       id: "To Do",
       title: "To Do",
-      icon: <ListTodo size={16} className="text-slate-500" />,
-      color: "bg-slate-50/60",
+      icon: <ListTodo size={16} className="text-muted-foreground" />,
+      color: "bg-muted/40",
       tasks: taskList.filter((t) => t.status === "To Do"),
     },
     {
       id: "In Progress",
       title: "In Progress",
       icon: <Clock size={16} className="text-blue-500" />,
-      color: "bg-blue-50/40",
+      color: "bg-muted/40",
       tasks: taskList.filter((t) => t.status === "In Progress"),
     },
     {
       id: "Review",
       title: "Review",
       icon: <Eye size={16} className="text-purple-500" />,
-      color: "bg-purple-50/40",
+      color: "bg-muted/40",
       tasks: taskList.filter((t) => t.status === "Review"),
     },
     {
       id: "Completed",
       title: "Completed",
       icon: <CheckCircle2 size={16} className="text-green-500" />,
-      color: "bg-green-50/40",
+      color: "bg-muted/40",
       tasks: taskList.filter((t) => t.status === "Completed"),
     },
   ];
@@ -107,8 +108,8 @@ export default function BoardPage() {
 
     queryClient.setQueryData<Tasks[]>(["UserTask"], (oldTasks = []) =>
       oldTasks.map((task) =>
-        task._id === draggableId ? { ...task, status: newStatus } : task
-      )
+        task._id === draggableId ? { ...task, status: newStatus } : task,
+      ),
     );
 
     pendingUpdates.current[draggableId] = newStatus;
@@ -122,12 +123,12 @@ export default function BoardPage() {
       try {
         await Promise.all(
           Object.entries(updates).map(([taskId, status]) =>
-            updateMutation.mutateAsync({ taskId, status })
-          )
+            updateMutation.mutateAsync({ taskId, status }),
+          ),
         );
-        toast.success("Task updated successfully")
-      } catch (err) {
-        toast.error("Error while updating task..")
+        toast.success("Task updated successfully");
+      } catch {
+        toast.error("Error while updating task..");
         queryClient.invalidateQueries({ queryKey: ["UserTask"] });
       }
     }, 1000);
@@ -135,7 +136,7 @@ export default function BoardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] text-sm text-slate-500 font-medium">
+      <div className="flex items-center justify-center min-h-[400px] text-sm text-muted-foreground font-medium">
         Loading personal workspace...
       </div>
     );
@@ -150,39 +151,39 @@ export default function BoardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 md:p-8 font-sans">
-      {/* Refined Header Block */}
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">My Personal Tasks</h1>
-        <p className="text-xs md:text-sm text-slate-500 mt-1">Organize and manage your individual workflow and assignments.</p>
-      </div>
-
+    <div className="page-shell">
+      <PageHeader
+        title="My tasks"
+        description="Focus on what comes next. Move tasks between stages as your work progresses."
+        action={
+          <AddTask
+            trigger={
+              <>
+                <Plus size={16} />
+                New task
+              </>
+            }
+          />
+        }
+      />
       {/* Fully Responsive Drag and Drop Grid Canvas Container */}
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex flex-row gap-4 md:gap-6 overflow-x-auto pb-6 items-start scrollbar-thin scrollbar-thumb-slate-200 snap-x snap-mandatory md:snap-none">
           {boardData.map((column) => (
             <div
               key={column.id}
-              className="w-[290px] sm:w-[320px] md:w-[340px] flex flex-col gap-3 md:gap-4 shrink-0 snap-center"
+              className="w-[280px] sm:w-[300px] 2xl:w-auto 2xl:min-w-0 2xl:flex-1 flex flex-col gap-3 md:gap-4 shrink-0 snap-center"
             >
               {/* Column Meta Header */}
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2 md:gap-2.5">
                   {column.icon}
-                  <h3 className="font-semibold text-xs md:text-sm text-slate-800">
+                  <h3 className="font-semibold text-xs md:text-sm text-foreground">
                     {column.title}
                   </h3>
-                  <span className="bg-slate-200/60 text-slate-700 text-[11px] md:text-xs font-medium px-2 py-0.5 rounded-md">
+                  <span className="bg-slate-200/60 text-foreground text-[11px] md:text-xs font-medium px-2 py-0.5 rounded-md">
                     {column.tasks.length}
                   </span>
-                </div>
-                <div className="flex items-center gap-0.5">
-                  <button type="button" className="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-                    <Settings size={14} />
-                  </button>
-                  <button type="button" className="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-                    <MoreHorizontal size={14} />
-                  </button>
                 </div>
               </div>
 
@@ -192,7 +193,7 @@ export default function BoardPage() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex flex-col gap-3 rounded-xl p-3 md:p-4 border border-slate-200/60 min-h-[500px] md:min-h-[600px] transition-all duration-200
+                    className={`flex flex-col gap-3 rounded-xl p-3 md:p-4 border border-border min-h-[420px] transition-all duration-200
                       ${column.color}
                       ${snapshot.isDraggingOver ? "ring-2 ring-blue-500/20 bg-blue-50/30 border-blue-200" : ""}
                     `}
@@ -209,8 +210,8 @@ export default function BoardPage() {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             className={`
-                              bg-white p-4 rounded-xl border border-slate-200/80 group transition-all duration-150 cursor-grab active:cursor-grabbing shadow-sm
-                              ${snapshot.isDragging ? "shadow-xl border-blue-200 ring-1 ring-blue-500/10 rotate-[1deg]" : "hover:border-slate-300 hover:shadow-md"}
+                              bg-card p-4 rounded-xl border border-border group transition-all duration-150 cursor-grab active:cursor-grabbing shadow-sm
+                              ${snapshot.isDragging ? "shadow-xl border-blue-200 ring-1 ring-blue-500/10 rotate-[1deg]" : "hover:border-slate-300 hover:shadow-sm"}
                             `}
                           >
                             {/* Priority Row */}
@@ -218,40 +219,43 @@ export default function BoardPage() {
                               <span
                                 className={`text-[10px] font-semibold px-2 py-0.5 rounded-md tracking-wide
                                   ${
-                                    task.priority === "High" || task.priority === "Critical"
+                                    task.priority.startsWith("High") ||
+                                    task.priority === "Critical"
                                       ? "bg-red-50 text-red-600 border border-red-100"
-                                      : task.priority === "Medium"
-                                      ? "bg-amber-50 text-amber-700 border border-amber-100"
-                                      : "bg-green-50 text-green-700 border border-green-100"
+                                      : task.priority.startsWith("Medium")
+                                        ? "bg-amber-50 text-amber-700 border border-amber-100"
+                                        : "bg-green-50 text-green-700 border border-green-100"
                                   }
                                 `}
                               >
                                 {task.priority}
                               </span>
-                              <button type="button" className="text-slate-400 md:opacity-0 md:group-hover:opacity-100 hover:text-slate-600 p-0.5 rounded transition-all">
-                                <MoreHorizontal size={14} />
-                              </button>
                             </div>
 
                             {/* Core Description Typography Details */}
-                            <h5 className="text-xs md:text-sm font-semibold text-slate-900 mb-1 leading-snug">
+                            <h5 className="text-xs md:text-sm font-semibold text-foreground mb-1 leading-snug">
                               {task.title}
                             </h5>
-                            <p className="text-[11px] md:text-xs text-slate-500 line-clamp-2 mb-3.5 leading-relaxed">
+                            <p className="text-[11px] md:text-xs text-muted-foreground line-clamp-2 mb-3.5 leading-relaxed">
                               {task.description || "No description provided."}
                             </p>
 
                             {/* Task Meta Footer Row */}
-                            <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-0.5">
-                              <div className="flex items-center gap-1.5 text-slate-400">
+                            <div className="flex items-center justify-between border-t border-border/60 pt-2.5 mt-0.5">
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
                                 <Calendar size={13} />
-                                <span className="text-[10px] md:text-[11px] font-medium text-slate-500">
-                                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) : "No Date"}
+                                <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground">
+                                  {task.dueDate
+                                    ? new Date(task.dueDate).toLocaleDateString(
+                                        undefined,
+                                        { month: "short", day: "numeric" },
+                                      )
+                                    : "No Date"}
                                 </span>
                               </div>
-                              
+
                               <div className="flex -space-x-1.5 overflow-hidden">
-                                <div className="inline-block h-4 w-4 md:h-5 md:w-5 rounded-full ring-2 ring-white bg-slate-200 flex items-center justify-center text-[8px] md:text-[9px] font-bold text-slate-600">
+                                <div className="inline-block h-4 w-4 md:h-5 md:w-5 rounded-full ring-2 ring-white bg-slate-200 flex items-center justify-center text-[8px] md:text-[9px] font-bold text-muted-foreground">
                                   ME
                                 </div>
                               </div>
@@ -261,20 +265,23 @@ export default function BoardPage() {
                       </Draggable>
                     ))}
 
+                    {column.tasks.length === 0 && (
+                      <p className="py-10 text-center text-xs text-muted-foreground">
+                        No tasks here yet
+                      </p>
+                    )}
                     {provided.placeholder}
 
                     {/* Add Inline Card Task Action Element */}
                     <div className="mt-1">
                       <AddTask
                         status={column.id}
-                        title="title"
+
                         trigger={
-                          <p className="w-full flex items-center justify-center gap-2 p-2 md:p-2.5 border border-dashed border-slate-300 rounded-xl text-slate-500 text-xs font-medium hover:border-slate-400 hover:text-slate-700 hover:bg-white/80 transition-all duration-150">
+                          <>
                             <Plus size={14} />
-                            Add Task
-                          </p>
-                            
-                        
+                            Add task
+                          </>
                         }
                       />
                     </div>

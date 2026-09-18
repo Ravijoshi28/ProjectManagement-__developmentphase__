@@ -10,7 +10,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,7 +36,7 @@ export default function Login() {
       toast.success("Successfully logged in!");
       router.refresh();
       router.push("/main/dashboard");
-    } catch (error) {
+    } catch {
       toast.error("Incorrect email or password.");
     } finally {
       setLoading(false);
@@ -45,15 +44,21 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50/60 p-4 sm:p-6 md:p-8 dark:bg-slate-950">
-      <Card className="w-full max-w-md border border-slate-200/80 bg-white p-2 sm:p-4 shadow-xl shadow-slate-200/50 transition-all dark:border-slate-800 dark:bg-slate-900 dark:shadow-none rounded-3xl">
+    <div className="relative flex min-h-dvh w-full flex-col items-center justify-center bg-background px-4 py-16 sm:px-6">
+      <Link
+        href="/auth"
+        className="mb-8 text-lg font-semibold tracking-tight text-foreground"
+      >
+        TaskFlow
+      </Link>
+      <Card className="w-full max-w-md rounded-2xl border border-border bg-card p-2 shadow-sm sm:p-4">
         <CardHeader className="space-y-2 text-center pb-6">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
             <LogIn className="h-6 w-6" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Welcome Back
-          </CardTitle>
+          </h1>
           <CardDescription className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
             Enter your email and password to access your dashboard.
           </CardDescription>
@@ -65,12 +70,13 @@ export default function Login() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400"
               >
                 Email
               </Label>
               <Input
                 id="email"
+                autoComplete="email"
                 type="email"
                 value={formData.email}
                 placeholder="name@example.com"
@@ -87,7 +93,7 @@ export default function Login() {
               <div className="flex items-center justify-between">
                 <Label
                   htmlFor="password"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+                  className="text-sm font-medium text-slate-600 dark:text-slate-400"
                 >
                   Password
                 </Label>
@@ -95,6 +101,7 @@ export default function Login() {
               <div className="relative">
                 <Input
                   id="password"
+                  autoComplete="current-password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={formData.password}
@@ -109,7 +116,8 @@ export default function Login() {
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                  tabIndex={-1}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -120,7 +128,7 @@ export default function Login() {
             <Button
               type="submit"
               disabled={loading}
-              className="mt-2 h-11 w-full rounded-xl bg-slate-900 text-sm font-semibold text-white shadow-md transition-all hover:bg-slate-800 active:scale-[0.99] disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+              className="mt-2 h-11 w-full rounded-xl bg-primary text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99] disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -136,7 +144,7 @@ export default function Login() {
           <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
             Don&apos;t have an account?{" "}
             <Link
-              href="signup"
+              href="/auth/signup"
               className="font-semibold text-slate-900 underline-offset-4 hover:underline dark:text-slate-200"
             >
               Sign up
