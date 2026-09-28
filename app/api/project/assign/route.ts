@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
   );
 }
 
-const result = await tasks.findOneAndUpdate(
+const task_to_update = await tasks.findOneAndUpdate(
   {
     _id: body.taskId,
   },
@@ -66,6 +66,48 @@ const result = await tasks.findOneAndUpdate(
     returnDocument: "after",
   }
 );
+
+ const task = {
+          _id:task_to_update?._id ,
+          projectId:task_to_update?.projectId,
+          title: task_to_update?.title,
+          description: task_to_update?.description,
+          dueDate: task_to_update?.dueDate,
+          status: task_to_update?.status,
+          priority: task_to_update?.priority,
+          assignedTo: task_to_update?.assignedTo,
+          watchers: task_to_update?.watchers,
+          completedAt: task_to_update?.completedAt
+      };
+
+             const ragTask = {
+              task_id: task._id,
+              project_id: task.projectId,
+            
+              content: `
+            Title: ${task.title}
+            Description: ${task.description}
+            Status: ${task.status}
+            Priority: ${task.priority}
+            Due Date: ${task.dueDate}
+            assignedTo:${task.assignedTo}
+              `.trim(),
+            
+              status: task.status,
+              priority: task.priority,
+              due_date: task.dueDate,
+            };
+                    
+                const url = process.env.RAG_URL!;
+            
+            await fetch(`${url}/ingestion`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({tasks:[ragTask]}),
+            });
+
 
   
     const User=await users.findOne({_id:id})
@@ -86,7 +128,7 @@ await notifications.insertOne({
     return Response.json(
       {
         message: "Task assigned successfully",
-        data: result,
+        data: task_to_update,
       },
       { status: 200 }
     );
