@@ -11,13 +11,11 @@ import { Button } from "@/components/ui/button";
 import { useUserState } from "@/app/zustand/userState";
 import { socket } from "@/app/lib/socket";
 
-export default function Navbar() {
+export default function Navbar({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useUserState();
   const queryClient = useQueryClient();
   const pathname = usePathname();
 
-  // Prefer role check on user object rather than client env check
-  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
   // Register user socket
   useEffect(() => {
     if (user) {

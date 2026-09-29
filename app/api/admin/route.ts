@@ -32,7 +32,7 @@ export async function GET() {
     const usersCollection = db.collection("users");
     const currentUser = await usersCollection.findOne({ _id: decodedUser.id });
 
-    const adminEmail = process.env.ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const adminEmail = process.env.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL;
     if (!adminEmail || currentUser?.email !== adminEmail) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }

@@ -29,7 +29,7 @@ export async function DELETE(
       return Response.json({ message: "Project not found" }, { status: 404 });
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const adminEmail = process.env.ADMIN_EMAIL ;
     const isAdmin = Boolean(adminEmail && user?.email === adminEmail);
     const isOwner = project.ownerId === currentUser.id;
 
