@@ -12,7 +12,7 @@ export async function DELETE(
 
     const decoded = verifyToken(token);
     const currentUser = await db.collection("users").findOne({ _id: decoded.id });
-    const adminEmail = process.env.ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
     if (!adminEmail || currentUser?.email !== adminEmail) {
       return Response.json({ message: "Admin access required" }, { status: 403 });
